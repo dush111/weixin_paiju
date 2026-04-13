@@ -3,7 +3,7 @@ const app = getApp();
 
 Page({
   data: {
-    inviteCode: '345332',
+    inviteCode: '',
     loading: false,
     showPreview: false,
     gameInfo: null,
