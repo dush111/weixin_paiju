@@ -11,8 +11,6 @@
     <view class="input-label">
       <text class="input-label-icon">🔑</text>
       <text class="input-label-text">邀请码</text>
-    </view>
-    <view class="code-input-wrap">
       <input
         class="code-input"
         placeholder="请输入6位邀请码"
@@ -20,9 +18,12 @@
         maxlength="6"
         value="{{inviteCode}}"
         bindinput="onCodeInput"
-        type="text"
+        focus="{{true}}"
       />
-      <view class="clear-btn" wx:if="{{inviteCode}}" bindtap="clearCode">✕</view>
+    </view>
+    <view class="code-input-wrap">
+      
+
     </view>
 
     <!-- 6格显示 -->
