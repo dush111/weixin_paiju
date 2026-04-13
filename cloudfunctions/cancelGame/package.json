@@ -1,0 +1,7 @@
+{
+  "name": "cancelGame",
+  "version": "1.0.0",
+  "description": "取消牌局",
+  "main": "index.js",
+  "dependencies": { "wx-server-sdk": "~2.6.3" }
+}

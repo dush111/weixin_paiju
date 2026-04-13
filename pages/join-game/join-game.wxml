@@ -1,0 +1,115 @@
+<!-- pages/join-game/join-game.wxml -->
+<view class="container join-container">
+  <!-- 顶部标题 -->
+  <view class="page-header">
+    <text class="page-title">加入牌局</text>
+    <text class="page-subtitle">输入邀请码或扫描二维码加入</text>
+  </view>
+
+  <!-- 输入邀请码 -->
+  <view class="input-section card">
+    <view class="input-label">
+      <text class="input-label-icon">🔑</text>
+      <text class="input-label-text">邀请码</text>
+    </view>
+    <view class="code-input-wrap">
+      <input
+        class="code-input"
+        placeholder="请输入6位邀请码"
+        placeholder-class="input-placeholder"
+        maxlength="6"
+        value="{{inviteCode}}"
+        bindinput="onCodeInput"
+        type="text"
+      />
+      <view class="clear-btn" wx:if="{{inviteCode}}" bindtap="clearCode">✕</view>
+    </view>
+
+    <!-- 6格显示 -->
+    <view class="code-boxes">
+      <view
+        class="code-box {{inviteCode.length > index ? 'code-box-filled' : ''}} {{inviteCode.length === index ? 'code-box-active' : ''}}"
+        wx:for="{{[0,1,2,3,4,5]}}"
+        wx:key="index"
+      >
+        <text>{{inviteCode[item] || ''}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 确认加入按钮 -->
+  <button
+    class="btn-join {{inviteCode.length === 6 ? '' : 'btn-disabled'}}"
+    bindtap="joinByCode"
+    disabled="{{inviteCode.length !== 6 || loading}}"
+  >
+    <text wx:if="{{!loading}}">确认加入</text>
+    <text wx:else>加入中...</text>
+  </button>
+
+  <!-- 分割线 -->
+  <view class="divider">
+    <view class="divider-line"></view>
+    <text class="divider-text">或</text>
+    <view class="divider-line"></view>
+  </view>
+
+  <!-- 扫码加入 -->
+  <view class="scan-section card" bindtap="scanQRCode">
+    <view class="scan-icon-wrap">
+      <text class="scan-icon">📷</text>
+    </view>
+    <view class="scan-info">
+      <text class="scan-title">扫描二维码加入</text>
+      <text class="scan-desc">扫描房主分享的二维码快速加入</text>
+    </view>
+    <text class="scan-arrow">›</text>
+  </view>
+
+  <!-- 提示信息 -->
+  <view class="tip-section">
+    <text class="tip-icon">💡</text>
+    <text class="tip-text">邀请码由房主在「新建牌局」页面分享，每局有效期为24小时</text>
+  </view>
+
+  <!-- 游戏预览弹窗 -->
+  <view class="modal-mask" wx:if="{{showPreview}}" bindtap="cancelJoin">
+    <view class="modal-card" catchtap="noop">
+      <view class="modal-title">确认加入？</view>
+      <view class="game-preview">
+        <view class="preview-row">
+          <text class="preview-label">牌局名称</text>
+          <text class="preview-value">{{gameInfo.name || '掼蛋牌局'}}</text>
+        </view>
+        <view class="preview-row">
+          <text class="preview-label">房主</text>
+          <text class="preview-value">{{gameInfo.ownerName}}</text>
+        </view>
+        <view class="preview-row">
+          <text class="preview-label">已入座</text>
+          <text class="preview-value">{{gameInfo.playerCount}}/4 人</text>
+        </view>
+        <view class="preview-row">
+          <text class="preview-label">计划局数</text>
+          <text class="preview-value">{{gameInfo.totalRounds}} 局</text>
+        </view>
+      </view>
+      <view class="modal-players">
+        <text class="modal-players-title">当前玩家</text>
+        <view class="player-tags">
+          <view
+            class="player-tag"
+            wx:for="{{gameInfo.players}}"
+            wx:key="openid"
+          >
+            <text>{{item.nickname}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="modal-btns">
+        <button class="modal-btn-cancel" bindtap="cancelJoin">取消</button>
+        <button class="modal-btn-confirm" bindtap="confirmJoin">加入</button>
+      </view>
+    </view>
+  </view>
+</view>

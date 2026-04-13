@@ -1,0 +1,357 @@
+/* pages/join-game/join-game.wxss */
+.join-container {
+  min-height: 100vh;
+  padding: 0 32rpx 80rpx;
+}
+
+/* 页面标题 */
+.page-header {
+  padding: 60rpx 0 48rpx;
+  text-align: center;
+}
+
+.page-title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* 输入区域 */
+.input-section {
+  margin-bottom: 36rpx;
+  padding: 36rpx;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 28rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.input-label {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 28rpx;
+}
+
+.input-label-icon {
+  font-size: 36rpx;
+}
+
+.input-label-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 隐藏的实际输入框 */
+.code-input-wrap {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+}
+
+.code-input {
+  opacity: 0;
+  height: 0;
+  position: absolute;
+}
+
+/* 6格显示 */
+.code-boxes {
+  display: flex;
+  gap: 16rpx;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.code-box {
+  width: 88rpx;
+  height: 96rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #ffffff;
+  transition: all 0.2s;
+}
+
+.code-box-filled {
+  background: rgba(233, 69, 96, 0.2);
+  border-color: rgba(233, 69, 96, 0.6);
+}
+
+.code-box-active {
+  border-color: #e94560;
+  box-shadow: 0 0 0 2rpx rgba(233, 69, 96, 0.3);
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { border-color: #e94560; }
+  50% { border-color: rgba(233, 69, 96, 0.4); }
+}
+
+/* 实际可见的输入框（覆盖在 code-boxes 上） */
+.input-section {
+  position: relative;
+}
+
+/* 真正的输入区（覆盖整个 code-boxes 区域，透明） */
+.code-input-real {
+  position: absolute;
+  width: 100%;
+  height: 96rpx;
+  opacity: 0;
+  z-index: 10;
+  font-size: 40rpx;
+  letter-spacing: 60rpx;
+}
+
+/* 确认按钮 */
+.btn-join {
+  width: 100%;
+  height: 100rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #e94560, #c0392b);
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 700;
+  border: none;
+  margin-bottom: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 32rpx rgba(233, 69, 96, 0.4);
+}
+
+.btn-join:active {
+  transform: scale(0.97);
+  opacity: 0.88;
+}
+
+.btn-disabled {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+}
+
+/* 分割线 */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 40rpx;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1rpx;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.divider-text {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+/* 扫码区域 */
+.scan-section {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 36rpx;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 28rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 40rpx;
+  transition: all 0.2s;
+}
+
+.scan-section:active {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(0.98);
+}
+
+.scan-icon-wrap {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 22rpx;
+  background: rgba(52, 152, 219, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.scan-icon {
+  font-size: 44rpx;
+}
+
+.scan-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.scan-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.scan-desc {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.scan-arrow {
+  font-size: 36rpx;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* 提示 */
+.tip-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 28rpx 32rpx;
+  background: rgba(245, 197, 24, 0.08);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(245, 197, 24, 0.2);
+}
+
+.tip-icon {
+  font-size: 32rpx;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: rgba(245, 197, 24, 0.75);
+  line-height: 1.6;
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 40rpx;
+}
+
+.modal-card {
+  background: #1e1e3a;
+  border-radius: 32rpx;
+  padding: 48rpx 40rpx;
+  width: 100%;
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 36rpx;
+}
+
+.game-preview {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 24rpx 28rpx;
+  margin-bottom: 28rpx;
+}
+
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.preview-row:last-child {
+  border-bottom: none;
+}
+
+.preview-label {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.preview-value {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-players {
+  margin-bottom: 36rpx;
+}
+
+.modal-players-title {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.player-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.player-tag {
+  background: rgba(233, 69, 96, 0.2);
+  border: 1rpx solid rgba(233, 69, 96, 0.4);
+  border-radius: 40rpx;
+  padding: 8rpx 24rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 20rpx;
+}
+
+.modal-btn-cancel {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 30rpx;
+  border: none;
+}
+
+.modal-btn-confirm {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 22rpx;
+  background: linear-gradient(135deg, #e94560, #c0392b);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 6rpx 20rpx rgba(233, 69, 96, 0.4);
+}

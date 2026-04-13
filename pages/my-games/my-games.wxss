@@ -1,0 +1,232 @@
+/* pages/my-games/my-games.wxss */
+.my-games-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 32rpx;
+  overflow-x: auto;
+}
+
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-btn {
+  padding: 12rpx 28rpx;
+  border-radius: 50rpx;
+  background: rgba(255,255,255,0.07);
+  border: 1rpx solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.55);
+  font-size: 26rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-btn.active {
+  background: rgba(233,69,96,0.25);
+  border-color: #e94560;
+  color: #e94560;
+  font-weight: 600;
+}
+
+/* 统计摘要 */
+.summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(255,255,255,0.05);
+  margin: 0 24rpx 20rpx;
+  border-radius: 16rpx;
+  padding: 20rpx 0;
+  border: 1rpx solid rgba(255,255,255,0.08);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  flex: 1;
+}
+
+.sum-val {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.sum-label {
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.4);
+}
+
+.sum-divider {
+  width: 1rpx;
+  height: 40rpx;
+  background: rgba(255,255,255,0.1);
+}
+
+.text-green { color: #2ed573; }
+.text-gold { color: #f5c518; }
+
+/* 空状态 */
+.empty-state-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+  gap: 16rpx;
+}
+
+.empty-emoji { font-size: 100rpx; }
+.empty-main { font-size: 32rpx; color: rgba(255,255,255,0.45); }
+.empty-sub { font-size: 26rpx; color: rgba(255,255,255,0.25); }
+
+/* 游戏列表 */
+.games-list {
+  flex: 1;
+  padding: 0 24rpx 120rpx;
+}
+
+.game-card {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20rpx;
+  padding: 24rpx 20rpx;
+  margin-bottom: 16rpx;
+  border: 1rpx solid rgba(255,255,255,0.08);
+  gap: 20rpx;
+}
+
+.game-card:active {
+  background: rgba(255,255,255,0.09);
+}
+
+/* 左侧名次 */
+.game-rank-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.rank-circle {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+.rank-circle.rank-1 { background: linear-gradient(135deg, #f5c518, #e67e22); color: #fff; }
+.rank-circle.rank-2 { background: linear-gradient(135deg, #bdc3c7, #95a5a6); color: #fff; }
+.rank-circle.rank-3 { background: linear-gradient(135deg, #cd7f32, #a04000); color: #fff; }
+.rank-circle.rank-4 { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+
+.rank-label {
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.35);
+}
+
+/* 中间信息 */
+.game-info-col {
+  flex: 1;
+  overflow: hidden;
+}
+
+.game-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-players {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 10rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-tags {
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+  margin-bottom: 8rpx;
+}
+
+.game-tag {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.5);
+}
+
+.status-playing { background: rgba(245,197,24,0.15); color: #f5c518; }
+.status-finished { background: rgba(46,213,115,0.12); color: #2ed573; }
+.status-cancelled { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
+
+.game-date {
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.3);
+}
+
+/* 右侧积分 */
+.game-score-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+  flex-shrink: 0;
+}
+
+.game-score {
+  font-size: 40rpx;
+  font-weight: 900;
+}
+
+.score-win { color: #2ed573; }
+.score-lose { color: #e94560; }
+
+.game-score-label {
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.3);
+}
+
+.game-team {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.07);
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 24rpx;
+}
+
+.load-more-text {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.35);
+}

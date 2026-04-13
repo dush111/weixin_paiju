@@ -1,0 +1,117 @@
+<!-- pages/annual-stats/annual-stats.wxml -->
+<view class="container stats-container">
+  <!-- 年份选择器 -->
+  <view class="year-selector">
+    <view class="year-btn" bindtap="prevYear">‹</view>
+    <text class="year-text">{{selectedYear}}年</text>
+    <view class="year-btn" bindtap="nextYear">›</view>
+  </view>
+
+  <!-- 核心数据卡片 -->
+  <view class="core-stats">
+    <view class="core-card highlight">
+      <text class="core-val">{{stats.totalScore}}</text>
+      <text class="core-label">年度总积分</text>
+    </view>
+    <view class="core-row">
+      <view class="core-card-sm">
+        <text class="core-val-sm">{{stats.totalGames}}</text>
+        <text class="core-label-sm">总场次</text>
+      </view>
+      <view class="core-card-sm">
+        <text class="core-val-sm text-green">{{stats.wins}}</text>
+        <text class="core-label-sm">胜场</text>
+      </view>
+      <view class="core-card-sm">
+        <text class="core-val-sm text-gold">{{stats.winRate}}%</text>
+        <text class="core-label-sm">胜率</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 名次分布 -->
+  <view class="section-card">
+    <text class="section-card-title">名次分布</text>
+    <view class="rank-dist">
+      <view class="rank-dist-item" wx:for="{{rankDist}}" wx:key="rank">
+        <view class="rank-dist-icon rank-{{item.rank}}">{{item.rank}}</view>
+        <view class="rank-dist-bar-wrap">
+          <view class="rank-dist-bar" style="width: {{item.pct}}%"></view>
+        </view>
+        <text class="rank-dist-count">{{item.count}}次</text>
+        <text class="rank-dist-pct">{{item.pct}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 月度趋势 -->
+  <view class="section-card">
+    <text class="section-card-title">月度积分趋势</text>
+    <view class="monthly-chart">
+      <view
+        class="month-col"
+        wx:for="{{monthlyData}}"
+        wx:key="month"
+      >
+        <view class="month-bar-wrap">
+          <view
+            class="month-bar {{item.score >= 0 ? 'bar-pos' : 'bar-neg'}}"
+            style="height: {{item.barH}}rpx"
+          ></view>
+        </view>
+        <text class="month-score {{item.score >= 0 ? 'text-green' : 'text-red'}}">
+          {{item.score !== 0 ? (item.score > 0 ? '+' : '') + item.score : '-'}}
+        </text>
+        <text class="month-label">{{item.month}}月</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 积分规律分析 -->
+  <view class="section-card">
+    <text class="section-card-title">场均数据</text>
+    <view class="avg-stats">
+      <view class="avg-item">
+        <text class="avg-val">{{stats.avgScore}}</text>
+        <text class="avg-label">场均积分</text>
+      </view>
+      <view class="avg-item">
+        <text class="avg-val">{{stats.avgRounds}}</text>
+        <text class="avg-label">场均局数</text>
+      </view>
+      <view class="avg-item">
+        <text class="avg-val">{{stats.bestStreak}}</text>
+        <text class="avg-label">最长连胜</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 战友排行 -->
+  <view class="section-card">
+    <text class="section-card-title">常驻战友</text>
+    <view class="partner-list">
+      <view class="partner-item" wx:for="{{topPartners}}" wx:key="openid">
+        <text class="partner-rank">{{index + 1}}</text>
+        <image class="partner-avatar" src="{{item.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="partner-info">
+          <text class="partner-name">{{item.nickname}}</text>
+          <text class="partner-games">合作 {{item.games}} 场</text>
+        </view>
+        <view class="partner-winrate">
+          <text class="partner-wr">{{item.winRate}}%</text>
+          <text class="partner-wr-label">胜率</text>
+        </view>
+      </view>
+
+      <view wx:if="{{topPartners.length === 0}}" class="no-data">
+        <text>暂无战友数据</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 年度总结语 -->
+  <view class="year-summary-card" wx:if="{{yearlySummary}}">
+    <text class="summary-emoji">{{yearlySummary.emoji}}</text>
+    <text class="summary-text">{{yearlySummary.text}}</text>
+  </view>
+</view>

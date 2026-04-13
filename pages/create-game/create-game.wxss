@@ -1,0 +1,290 @@
+/* pages/create-game/create-game.wxss */
+.create-container {
+  min-height: 100vh;
+  padding: 40rpx 40rpx 80rpx;
+}
+
+.step-panel {
+  width: 100%;
+}
+
+.step-header {
+  margin-bottom: 48rpx;
+}
+
+.step-title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12rpx;
+}
+
+.step-desc {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.5);
+}
+
+.game-name-text {
+  color: #f5c518;
+}
+
+/* 输入组 */
+.input-group {
+  margin-bottom: 40rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 16rpx;
+}
+
+.game-input {
+  width: 100%;
+  height: 88rpx;
+  background: rgba(255,255,255,0.08);
+  border: 1rpx solid rgba(255,255,255,0.15);
+  border-radius: 16rpx;
+  padding: 0 28rpx;
+  font-size: 30rpx;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+/* 局数选择 */
+.rounds-selector {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.rounds-btn {
+  padding: 16rpx 36rpx;
+  border-radius: 50rpx;
+  background: rgba(255,255,255,0.08);
+  border: 1rpx solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+  font-size: 28rpx;
+  transition: all 0.2s;
+}
+
+.rounds-btn.active {
+  background: rgba(233,69,96,0.3);
+  border-color: #e94560;
+  color: #e94560;
+  font-weight: 600;
+}
+
+.create-btn {
+  width: 100%;
+  height: 96rpx;
+  margin-top: 48rpx;
+  font-size: 34rpx;
+}
+
+/* 等待界面 */
+.waiting-panel {}
+
+/* 二维码 */
+.qr-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32rpx;
+}
+
+.qr-box {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  width: 320rpx;
+}
+
+.qr-image {
+  width: 260rpx;
+  height: 260rpx;
+}
+
+.qr-tip {
+  font-size: 24rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+/* 邀请按钮 */
+.invite-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.btn-invite {
+  flex: 1;
+  height: 88rpx;
+  background: rgba(255,255,255,0.08);
+  border: 1rpx solid rgba(255,255,255,0.15);
+  border-radius: 16rpx;
+  color: #ffffff;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+}
+
+.btn-invite::after { border: none; }
+
+.btn-copy {
+  background: rgba(52,152,219,0.2);
+  border-color: rgba(52,152,219,0.4);
+}
+
+.invite-icon { font-size: 32rpx; }
+
+/* 玩家列表 */
+.players-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 24rpx;
+  padding: 28rpx;
+  border: 1rpx solid rgba(255,255,255,0.1);
+  margin-bottom: 40rpx;
+}
+
+.players-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.players-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.players-count {
+  font-size: 28rpx;
+  color: #e94560;
+  font-weight: 700;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.player-slot {
+  border-radius: 16rpx;
+  padding: 20rpx;
+  min-height: 120rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-slot.filled {
+  background: rgba(46,213,115,0.1);
+  border: 1rpx solid rgba(46,213,115,0.25);
+}
+
+.player-slot.empty {
+  background: rgba(255,255,255,0.04);
+  border: 2rpx dashed rgba(255,255,255,0.15);
+}
+
+.player-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.player-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(46,213,115,0.5);
+}
+
+.player-name {
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 600;
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-tag {
+  font-size: 18rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 10rpx;
+}
+
+.host-tag {
+  background: rgba(233,69,96,0.3);
+  color: #e94560;
+}
+
+.joined-tag {
+  background: rgba(46,213,115,0.25);
+  color: #2ed573;
+}
+
+.empty-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.empty-icon {
+  font-size: 40rpx;
+  color: rgba(255,255,255,0.2);
+}
+
+.empty-label {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.3);
+}
+
+/* 开始区域 */
+.start-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.start-btn {
+  width: 100%;
+  height: 100rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.start-btn.disabled {
+  background: rgba(255,255,255,0.1);
+  box-shadow: none;
+  color: rgba(255,255,255,0.4);
+}
+
+.btn-cancel {
+  width: 100%;
+  height: 80rpx;
+  background: transparent;
+  border: 1rpx solid rgba(255,255,255,0.15);
+  border-radius: 50rpx;
+  color: rgba(255,255,255,0.4);
+  font-size: 28rpx;
+}
+
+.btn-cancel::after { border: none; }

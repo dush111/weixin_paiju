@@ -1,0 +1,75 @@
+<!-- pages/login/login.wxml -->
+<view class="container login-container">
+  <!-- 顶部装饰 -->
+  <view class="top-decoration">
+    <view class="circle circle-1"></view>
+    <view class="circle circle-2"></view>
+    <view class="circle circle-3"></view>
+  </view>
+
+  <!-- Logo区域 -->
+  <view class="logo-section">
+    <view class="logo-icon">
+      <text class="logo-emoji">🎴</text>
+    </view>
+    <text class="app-name">转蛋积分</text>
+    <text class="app-tagline">掼蛋积分记录神器</text>
+  </view>
+
+  <!-- 登录卡片 -->
+  <view class="login-card">
+    <view class="card-header">
+      <text class="card-title">欢迎使用</text>
+      <text class="card-desc">使用微信登录，自动同步您的记录</text>
+    </view>
+
+    <!-- 特性列表 -->
+    <view class="features-list">
+      <view class="feature-item">
+        <text class="feature-icon">📊</text>
+        <view class="feature-text">
+          <text class="feature-name">实时记分</text>
+          <text class="feature-desc">4人联机实时同步</text>
+        </view>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">🏆</text>
+        <view class="feature-text">
+          <text class="feature-name">年度战绩</text>
+          <text class="feature-desc">数据统计一目了然</text>
+        </view>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">📱</text>
+        <view class="feature-text">
+          <text class="feature-name">扫码加入</text>
+          <text class="feature-desc">邀请好友极速加入</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 登录按钮 -->
+    <button
+      class="btn-wechat-login"
+      open-type="getUserInfo"
+      bindgetuserinfo="onGetUserInfo"
+      wx:if="{{!isLoading}}"
+    >
+      <text class="wechat-icon">微信</text>
+      <text>微信一键登录</text>
+    </button>
+
+    <!-- 加载状态 -->
+    <view class="loading-btn" wx:if="{{isLoading}}">
+      <view class="loading-spinner"></view>
+      <text>登录中...</text>
+    </view>
+
+    <text class="privacy-text">登录即表示同意《用户协议》和《隐私政策》</text>
+  </view>
+
+  <!-- 底部版本 -->
+  <view class="footer">
+    <text class="version-text">v1.0.0</text>
+  </view>
+</view>

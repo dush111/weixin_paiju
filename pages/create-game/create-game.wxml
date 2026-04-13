@@ -1,0 +1,108 @@
+<!-- pages/create-game/create-game.wxml -->
+<view class="container create-container">
+  <!-- 创建牌局步骤1 -->
+  <view wx:if="{{step === 1}}" class="step-panel">
+    <view class="step-header">
+      <text class="step-title">新建牌局</text>
+      <text class="step-desc">设置牌局名称，邀请3位好友开始</text>
+    </view>
+
+    <!-- 牌局名称 -->
+    <view class="input-group">
+      <text class="input-label">牌局名称</text>
+      <input
+        class="game-input"
+        value="{{gameName}}"
+        placeholder="例如：2024年春节局"
+        maxlength="20"
+        bindinput="onGameNameInput"
+      />
+    </view>
+
+    <!-- 目标局数 -->
+    <view class="input-group">
+      <text class="input-label">计划局数</text>
+      <view class="rounds-selector">
+        <view
+          class="rounds-btn {{targetRounds === item ? 'active' : ''}}"
+          wx:for="{{roundOptions}}"
+          wx:key="*this"
+          data-val="{{item}}"
+          bindtap="selectRounds"
+        >{{item}}局</view>
+      </view>
+    </view>
+
+    <button class="btn-primary create-btn" bindtap="createGame">
+      创建牌局
+    </button>
+  </view>
+
+  <!-- 等待玩家加入 -->
+  <view wx:if="{{step === 2}}" class="step-panel waiting-panel">
+    <view class="step-header">
+      <text class="step-title">等待玩家加入</text>
+      <text class="step-desc game-name-text">{{gameName}}</text>
+    </view>
+
+    <!-- 二维码区域 -->
+    <view class="qr-section">
+      <view class="qr-box">
+        <image class="qr-image" src="{{qrCodeUrl || '/assets/images/qr-placeholder.png'}}" mode="aspectFit"></image>
+        <text class="qr-tip">扫码加入牌局</text>
+      </view>
+    </view>
+
+    <!-- 邀请方式 -->
+    <view class="invite-actions">
+      <button class="btn-invite" open-type="share" bindtap="onInviteShare">
+        <text class="invite-icon">📤</text>
+        <text>微信邀请</text>
+      </button>
+      <button class="btn-invite btn-copy" bindtap="copyGameCode">
+        <text class="invite-icon">📋</text>
+        <text>复制口令</text>
+      </button>
+    </view>
+
+    <!-- 玩家列表 -->
+    <view class="players-section">
+      <view class="players-header">
+        <text class="players-title">玩家列表</text>
+        <text class="players-count">{{players.length}}/4</text>
+      </view>
+
+      <view class="players-grid">
+        <view
+          class="player-slot {{index < players.length ? 'filled' : 'empty'}}"
+          wx:for="{{[0,1,2,3]}}"
+          wx:key="*this"
+        >
+          <view wx:if="{{index < players.length}}" class="player-item">
+            <image class="player-avatar" src="{{players[index].avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <text class="player-name">{{players[index].nickname}}</text>
+            <view class="player-tag {{index === 0 ? 'host-tag' : 'joined-tag'}}">
+              {{index === 0 ? '房主' : '已加入'}}
+            </view>
+          </view>
+          <view wx:else class="empty-slot">
+            <text class="empty-icon">＋</text>
+            <text class="empty-label">等待加入...</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 开始按钮 -->
+    <view class="start-section">
+      <button
+        class="btn-primary start-btn {{players.length < 4 ? 'disabled' : ''}}"
+        disabled="{{players.length < 4}}"
+        bindtap="startGame"
+      >
+        {{players.length < 4 ? '等待玩家加入(' + players.length + '/4)' : '开始记分！'}}
+      </button>
+      <button class="btn-cancel" bindtap="cancelGame">取消牌局</button>
+    </view>
+  </view>
+</view>

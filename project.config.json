@@ -1,0 +1,37 @@
+{
+  "description": "项目配置文件",
+  "projectname": "转蛋积分",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useDevtools": true,
+    "cloudbaseToolsVersion": "2",
+    "networkTimeout": {
+      "request": 15000,
+      "connectSocket": 15000,
+      "uploadFile": 15000,
+      "downloadFile": 15000
+    }
+  },
+  "compileType": "miniprogram",
+  "libVersion": "2.19.4",
+  "appid": "your-appid-here",
+  "condition": {}
+}
