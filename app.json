@@ -26,21 +26,15 @@
     "list": [
       {
         "pagePath": "pages/home/home",
-        "text": "首页",
-        "iconPath": "assets/icons/home.png",
-        "selectedIconPath": "assets/icons/home-active.png"
+        "text": "首页"
       },
       {
         "pagePath": "pages/my-games/my-games",
-        "text": "牌局",
-        "iconPath": "assets/icons/game.png",
-        "selectedIconPath": "assets/icons/game-active.png"
+        "text": "牌局"
       },
       {
         "pagePath": "pages/annual-stats/annual-stats",
-        "text": "战绩",
-        "iconPath": "assets/icons/stats.png",
-        "selectedIconPath": "assets/icons/stats-active.png"
+        "text": "战绩"
       }
     ]
   },
