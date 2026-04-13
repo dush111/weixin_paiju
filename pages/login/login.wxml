@@ -12,8 +12,8 @@
     <view class="logo-icon">
       <text class="logo-emoji">🎴</text>
     </view>
-    <text class="app-name">转蛋积分</text>
-    <text class="app-tagline">掼蛋积分记录神器</text>
+    <text class="app-name">转蛋计分</text>
+    <text class="app-tagline">掼蛋计分记录神器</text>
   </view>
 
   <!-- 登录卡片 -->
