@@ -63,7 +63,7 @@ exports.main = async (event, context) => {
       success: true,
       data: {
         gameId: result._id,
-        gameCode: result.inviteCode,
+        gameCode: inviteCode,
         qrCodeUrl: '', // 实际部署时通过 wx.cloud.openapi.wxacode.getUnlimited 生成
       }
     };
