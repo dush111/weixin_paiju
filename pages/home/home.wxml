@@ -1,0 +1,124 @@
+<!-- pages/home/home.wxml -->
+<view class="container home-container">
+  <!-- 顶部用户信息 -->
+  <view class="header">
+    <view class="user-info">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <view class="user-meta">
+        <text class="username">{{userInfo.nickname || '掼蛋玩家'}}</text>
+        <text class="user-level">{{rankText}}</text>
+      </view>
+    </view>
+    <view class="header-right">
+      <view class="score-badge">
+        <text class="score-label">总积分</text>
+        <text class="score-value">{{totalScore}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 今日数据 -->
+  <view class="today-stats card">
+    <view class="stats-title">
+      <text class="stats-title-text">今日战绩</text>
+      <text class="stats-date">{{todayDate}}</text>
+    </view>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-num">{{todayStats.games}}</text>
+        <text class="stat-label">场次</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num {{todayStats.score >= 0 ? 'text-gold' : 'text-red'}}">{{todayStats.score >= 0 ? '+' : ''}}{{todayStats.score}}</text>
+        <text class="stat-label">积分</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">{{todayStats.wins}}</text>
+        <text class="stat-label">胜局</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主菜单按钮 -->
+  <view class="menu-grid">
+    <!-- 新建牌局 -->
+    <view class="menu-card menu-card-primary" bindtap="createGame">
+      <view class="menu-icon-bg primary-bg">
+        <text class="menu-icon">🎯</text>
+      </view>
+      <text class="menu-name">新建牌局</text>
+      <text class="menu-desc">邀请3位玩家开始</text>
+      <view class="menu-arrow">›</view>
+    </view>
+
+    <!-- 我的牌局 -->
+    <view class="menu-card" bindtap="goToMyGames">
+      <view class="menu-icon-bg blue-bg">
+        <text class="menu-icon">📋</text>
+      </view>
+      <text class="menu-name">我的牌局</text>
+      <text class="menu-desc">历史记录查看</text>
+      <view class="menu-arrow">›</view>
+    </view>
+
+    <!-- 年度战绩 -->
+    <view class="menu-card" bindtap="goToAnnualStats">
+      <view class="menu-icon-bg purple-bg">
+        <text class="menu-icon">📊</text>
+      </view>
+      <text class="menu-name">年度战绩</text>
+      <text class="menu-desc">数据统计分析</text>
+      <view class="menu-arrow">›</view>
+    </view>
+
+    <!-- 更改昵称 -->
+    <view class="menu-card" bindtap="goToNickname">
+      <view class="menu-icon-bg green-bg">
+        <text class="menu-icon">✏️</text>
+      </view>
+      <text class="menu-name">更改昵称</text>
+      <text class="menu-desc">修改显示名称</text>
+      <view class="menu-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 最近牌局 -->
+  <view class="recent-section">
+    <view class="section-header">
+      <text class="section-title">最近牌局</text>
+      <text class="section-more" bindtap="goToMyGames">查看全部 ›</text>
+    </view>
+
+    <view wx:if="{{recentGames.length === 0}}" class="empty-state">
+      <text class="empty-icon">🃏</text>
+      <text class="empty-text">还没有牌局记录</text>
+      <text class="empty-sub">点击「新建牌局」开始第一局</text>
+    </view>
+
+    <view wx:else class="recent-list">
+      <view
+        class="recent-item"
+        wx:for="{{recentGames}}"
+        wx:key="_id"
+        bindtap="goToGameDetail"
+        data-id="{{item._id}}"
+      >
+        <view class="recent-left">
+          <view class="rank-badge rank-{{item.myRank}}">{{item.myRank}}</view>
+          <view class="recent-info">
+            <text class="recent-date">{{item.formattedDate}}</text>
+            <text class="recent-players">{{item.playersText}}</text>
+          </view>
+        </view>
+        <view class="recent-right">
+          <text class="recent-score {{item.score >= 0 ? 'score-pos' : 'score-neg'}}">
+            {{item.score >= 0 ? '+' : ''}}{{item.score}}
+          </text>
+          <text class="recent-rounds">{{item.rounds}}局</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,231 @@
+/* pages/game-detail/game-detail.wxss */
+.detail-container {
+  min-height: 100vh;
+  padding: 0 0 80rpx;
+}
+
+.detail-header {
+  padding: 40rpx 40rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.detail-game-name {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.detail-date {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.45);
+}
+
+.detail-status {
+  display: inline-block;
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 10rpx;
+  width: fit-content;
+}
+
+.status-finished { background: rgba(46,213,115,0.15); color: #2ed573; }
+.status-playing { background: rgba(245,197,24,0.15); color: #f5c518; }
+.status-cancelled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+
+/* 最终比分 */
+.final-score-card {
+  display: flex;
+  align-items: center;
+  margin: 0 24rpx 24rpx;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(255,255,255,0.09);
+  overflow: hidden;
+}
+
+.team-final {
+  flex: 1;
+  padding: 36rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  position: relative;
+}
+
+.team-final.winner {
+  background: linear-gradient(135deg, rgba(245,197,24,0.15), rgba(233,69,96,0.1));
+}
+
+.team-final.loser {
+  opacity: 0.6;
+}
+
+.tf-label {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.5);
+}
+
+.tf-score {
+  font-size: 80rpx;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.tf-crown {
+  font-size: 28rpx;
+  position: absolute;
+  top: 12rpx;
+  right: 20rpx;
+}
+
+.final-vs {
+  padding: 0 16rpx;
+  border-left: 1rpx solid rgba(255,255,255,0.08);
+  border-right: 1rpx solid rgba(255,255,255,0.08);
+}
+
+.fv-text {
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.3);
+  writing-mode: vertical-rl;
+  letter-spacing: 4rpx;
+}
+
+/* 玩家详情 */
+.players-detail-card {
+  margin: 0 24rpx 24rpx;
+  background: rgba(255,255,255,0.04);
+  border-radius: 20rpx;
+  padding: 28rpx;
+  border: 1rpx solid rgba(255,255,255,0.08);
+}
+
+.pdc-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 20rpx;
+}
+
+.players-table {}
+
+.pt-header {
+  display: flex;
+  padding: 0 0 12rpx;
+  border-bottom: 1rpx solid rgba(255,255,255,0.08);
+  margin-bottom: 12rpx;
+}
+
+.pt-row {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid rgba(255,255,255,0.05);
+}
+
+.pt-cell {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.5);
+}
+
+.pt-header .pt-cell { font-size: 22rpx; color: rgba(255,255,255,0.35); }
+
+.w40 { width: 40%; }
+.w20 { width: 20%; }
+.right { text-align: right; }
+
+.player-col {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  color: #ffffff;
+  font-size: 26rpx;
+}
+
+.pt-avatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pt-name {
+  max-width: 100rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-tag {
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+}
+
+.team-A { background: rgba(52,152,219,0.2); color: #3498db; }
+.team-B { background: rgba(233,69,96,0.2); color: #e94560; }
+
+.score-txt { font-size: 28rpx; font-weight: 700; }
+.pos { color: #2ed573; }
+.zero { color: rgba(255,255,255,0.25); }
+
+.rank-txt { font-size: 24rpx; }
+.rank-c1 { color: #f5c518; }
+.rank-c2 { color: #bdc3c7; }
+.rank-c3 { color: #cd7f32; }
+.rank-c4 { color: rgba(255,255,255,0.3); }
+
+/* 逐局记录 */
+.rounds-card {
+  margin: 0 24rpx;
+  background: rgba(255,255,255,0.04);
+  border-radius: 20rpx;
+  padding: 28rpx;
+  border: 1rpx solid rgba(255,255,255,0.08);
+}
+
+.rc-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 20rpx;
+}
+
+.rounds-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.round-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 10rpx 0;
+  border-bottom: 1rpx solid rgba(255,255,255,0.05);
+}
+
+.rr-num {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.35);
+  width: 72rpx;
+  flex-shrink: 0;
+}
+
+.rr-case {
+  flex: 1;
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.5);
+}
+
+.rr-a, .rr-b {
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.rr-sep { color: rgba(255,255,255,0.15); font-size: 20rpx; }

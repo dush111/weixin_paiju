@@ -1,0 +1,265 @@
+// pages/scoring/scoring.js
+const app = getApp();
+
+Page({
+  data: {
+    gameId: '',
+    gameName: '',
+    targetRounds: 10,
+    currentRound: 1,
+    progressPct: 0,
+    players: [],
+    playerNames: [],
+    teamAScore: 0,
+    teamBScore: 0,
+    teamAWinning: false,
+    // 当前局名次选择
+    rankIndexes: [-1, -1, -1, -1],
+    rankSelections: ['', '', '', ''],
+    previewReady: false,
+    previewAScore: 0,
+    previewBScore: 0,
+    scoreCase: '',
+    rounds: [],
+    showRuleModal: false,
+    pollingTimer: null,
+  },
+
+  onLoad(options) {
+    const { gameId } = options;
+    this.setData({ gameId });
+    this.loadGameData();
+    this.startSync();
+  },
+
+  onUnload() {
+    if (this.data.pollingTimer) {
+      clearInterval(this.data.pollingTimer);
+    }
+  },
+
+  async loadGameData() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getGameScore',
+        data: { gameId: this.data.gameId }
+      });
+      if (res.result.success) {
+        const d = res.result.data;
+        const playerNames = d.players.map(p => p.nickname);
+        this.setData({
+          gameName: d.name,
+          targetRounds: d.targetRounds,
+          currentRound: d.currentRound,
+          players: d.players,
+          playerNames,
+          teamAScore: d.teamAScore,
+          teamBScore: d.teamBScore,
+          teamAWinning: d.teamAScore > d.teamBScore,
+          rounds: d.rounds,
+          progressPct: Math.round((d.currentRound - 1) / d.targetRounds * 100)
+        });
+      }
+    } catch (err) {
+      console.error('加载记分数据失败:', err);
+    }
+  },
+
+  startSync() {
+    const timer = setInterval(() => {
+      this.loadGameData();
+    }, 5000);
+    this.setData({ pollingTimer: timer });
+  },
+
+  // 四个名次选择器
+  onRank1Change(e) { this.updateRank(0, e.detail.value); },
+  onRank2Change(e) { this.updateRank(1, e.detail.value); },
+  onRank3Change(e) { this.updateRank(2, e.detail.value); },
+  onRank4Change(e) { this.updateRank(3, e.detail.value); },
+
+  updateRank(position, playerIndex) {
+    const { rankIndexes, rankSelections, playerNames, players } = this.data;
+    const idx = parseInt(playerIndex);
+
+    // 检查是否重复选择
+    const existingPos = rankIndexes.indexOf(idx);
+    let newIndexes = [...rankIndexes];
+    let newSelections = [...rankSelections];
+
+    if (existingPos !== -1 && existingPos !== position) {
+      // 清除原位置
+      newIndexes[existingPos] = -1;
+      newSelections[existingPos] = '';
+    }
+
+    newIndexes[position] = idx;
+    newSelections[position] = playerNames[idx];
+
+    this.setData({
+      rankIndexes: newIndexes,
+      rankSelections: newSelections
+    });
+
+    // 检查是否四个都选了
+    if (newIndexes.every(i => i !== -1)) {
+      this.calcPreviewScore(newIndexes, players);
+    } else {
+      this.setData({ previewReady: false });
+    }
+  },
+
+  /**
+   * 积分规则：
+   * A队 = players[0], players[2]（位置0,2）
+   * B队 = players[1], players[3]（位置1,3）
+   *
+   * rankIndexes[0] = 第一名 player index
+   * rankIndexes[1] = 第二名 player index
+   * rankIndexes[2] = 第三名 player index
+   * rankIndexes[3] = 第四名 player index
+   *
+   * 判断第一名属于哪队：
+   *   若第一名 index 在 {0,2} → A队拥有第一名
+   *   若第一名 index 在 {1,3} → B队拥有第一名
+   *
+   * 第二名 index 所在队与第一名队相同 → 300分
+   * 第三名 index 所在队与第一名队相同 → 200分
+   * 第四名 index 所在队与第一名队相同 → 100分
+   */
+  calcPreviewScore(rankIndexes, players) {
+    const teamA = new Set([0, 2]); // player下标
+    const teamB = new Set([1, 3]);
+
+    const rank1 = rankIndexes[0];
+    const rank2 = rankIndexes[1];
+    // const rank3 = rankIndexes[2];  // 隐含
+    const rank4 = rankIndexes[3];
+
+    const firstTeamIsA = teamA.has(rank1);
+
+    // 同队判断
+    const isSameTeam = (a, b) => {
+      return (teamA.has(a) && teamA.has(b)) || (teamB.has(a) && teamB.has(b));
+    };
+
+    let score = 0;
+    let caseText = '';
+
+    if (isSameTeam(rank1, rank2)) {
+      score = 300;
+      caseText = '一、二名同队（300分局）';
+    } else if (!isSameTeam(rank1, rank4)) {
+      // 第一名和第四名不同队 → 第一名和第三名可能同队（200分）
+      score = 200;
+      caseText = '一、三名同队（200分局）';
+    } else {
+      // 第一名和第四名同队 → 100分
+      score = 100;
+      caseText = '一、四名同队（100分局）';
+    }
+
+    const aScore = firstTeamIsA ? score : 0;
+    const bScore = firstTeamIsA ? 0 : score;
+
+    this.setData({
+      previewReady: true,
+      previewAScore: aScore,
+      previewBScore: bScore,
+      scoreCase: caseText
+    });
+  },
+
+  async submitRound() {
+    const { gameId, rankIndexes, rankSelections, previewAScore, previewBScore, scoreCase, currentRound } = this.data;
+    if (!this.data.previewReady) return;
+
+    wx.showModal({
+      title: '确认提交',
+      content: `${scoreCase}\nA队 ${previewAScore > 0 ? '+' + previewAScore : 0}，B队 ${previewBScore > 0 ? '+' + previewBScore : 0}`,
+      confirmText: '确认',
+      confirmColor: '#e94560',
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '提交中...' });
+          try {
+            const result = await wx.cloud.callFunction({
+              name: 'submitRound',
+              data: {
+                gameId,
+                roundNumber: currentRound,
+                ranks: rankIndexes,
+                scoreA: previewAScore,
+                scoreB: previewBScore,
+                caseText: scoreCase
+              }
+            });
+
+            if (result.result.success) {
+              wx.vibrateShort({ type: 'light' });
+
+              // 重置选择
+              this.setData({
+                rankIndexes: [-1, -1, -1, -1],
+                rankSelections: ['', '', '', ''],
+                previewReady: false
+              });
+
+              // 检查是否游戏结束
+              if (result.result.data.gameOver) {
+                this.showGameOver(result.result.data);
+              } else {
+                this.loadGameData();
+              }
+            }
+          } catch (err) {
+            wx.showToast({ title: '提交失败', icon: 'error' });
+          } finally {
+            wx.hideLoading();
+          }
+        }
+      }
+    });
+  },
+
+  showGameOver(data) {
+    const winner = data.winner === 'A' ? 'A队' : 'B队';
+    wx.showModal({
+      title: '🎉 牌局结束',
+      content: `${winner}获胜！\nA队：${data.finalScoreA}分\nB队：${data.finalScoreB}分`,
+      showCancel: false,
+      confirmText: '查看详情',
+      success: () => {
+        wx.redirectTo({
+          url: `/pages/game-detail/game-detail?id=${this.data.gameId}`
+        });
+      }
+    });
+  },
+
+  confirmEndGame() {
+    wx.showModal({
+      title: '结束牌局',
+      content: '确定提前结束本次牌局吗？',
+      confirmColor: '#e94560',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            await wx.cloud.callFunction({
+              name: 'endGame',
+              data: { gameId: this.data.gameId }
+            });
+            wx.redirectTo({
+              url: `/pages/game-detail/game-detail?id=${this.data.gameId}`
+            });
+          } catch (err) {
+            wx.showToast({ title: '操作失败', icon: 'error' });
+          }
+        }
+      }
+    });
+  },
+
+  showRules() { this.setData({ showRuleModal: true }); },
+  hideRules() { this.setData({ showRuleModal: false }); }
+});

@@ -1,0 +1,33 @@
+<!-- pages/nickname/nickname.wxml -->
+<view class="container nickname-container">
+  <view class="avatar-section">
+    <image class="big-avatar" src="{{userInfo.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <text class="current-name">{{userInfo.nickname}}</text>
+    <text class="current-label">当前昵称</text>
+  </view>
+
+  <view class="input-section">
+    <text class="input-title">新昵称</text>
+    <view class="name-input-wrap">
+      <input
+        class="name-input"
+        value="{{newNickname}}"
+        placeholder="输入新昵称（2-12个字符）"
+        maxlength="12"
+        bindinput="onNameInput"
+        focus="{{true}}"
+      />
+      <text class="input-count">{{newNickname.length}}/12</text>
+    </view>
+    <text class="input-tip">昵称将在所有牌局中展示</text>
+  </view>
+
+  <view class="action-section">
+    <button
+      class="btn-primary save-btn {{!canSave ? 'disabled' : ''}}"
+      disabled="{{!canSave}}"
+      bindtap="saveNickname"
+    >保存昵称</button>
+    <button class="btn-cancel" bindtap="goBack">取消</button>
+  </view>
+</view>

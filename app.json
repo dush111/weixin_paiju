@@ -1,0 +1,44 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/home/home",
+    "pages/create-game/create-game",
+    "pages/waiting-room/waiting-room",
+    "pages/scoring/scoring",
+    "pages/game-detail/game-detail",
+    "pages/my-games/my-games",
+    "pages/annual-stats/annual-stats",
+    "pages/nickname/nickname"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1a1a2e",
+    "navigationBarTitleText": "转蛋积分",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#e94560",
+    "backgroundColor": "#1a1a2e",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/my-games/my-games",
+        "text": "牌局"
+      },
+      {
+        "pagePath": "pages/annual-stats/annual-stats",
+        "text": "战绩"
+      }
+    ]
+  },
+  "cloud": true,
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

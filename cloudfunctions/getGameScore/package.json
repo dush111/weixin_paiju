@@ -1,0 +1,7 @@
+{
+  "name": "getGameScore",
+  "version": "1.0.0",
+  "description": "获取牌局积分",
+  "main": "index.js",
+  "dependencies": { "wx-server-sdk": "~2.6.3" }
+}

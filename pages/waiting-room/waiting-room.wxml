@@ -1,0 +1,43 @@
+<!-- pages/waiting-room/waiting-room.wxml -->
+<view class="container waiting-container">
+  <view class="room-header">
+    <text class="room-title">{{gameName}}</text>
+    <text class="room-code">口令: {{gameCode}}</text>
+  </view>
+
+  <!-- 房间状态 -->
+  <view class="room-status">
+    <view class="status-dot {{players.length === 4 ? 'full' : 'waiting'}}"></view>
+    <text class="status-text">{{players.length === 4 ? '全员到齐，即将开始' : '等待房主开始...'}}</text>
+  </view>
+
+  <!-- 玩家列表 -->
+  <view class="players-grid">
+    <view
+      class="player-card {{index < players.length ? 'filled' : 'empty'}}"
+      wx:for="{{[0,1,2,3]}}"
+      wx:key="*this"
+    >
+      <view wx:if="{{index < players.length}}">
+        <image class="p-avatar" src="{{players[index].avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <text class="p-name">{{players[index].nickname}}</text>
+        <text class="p-tag">{{players[index].isHost ? '房主' : '玩家'}}</text>
+      </view>
+      <view wx:else class="empty-player">
+        <view class="empty-circle">
+          <text class="empty-plus">+</text>
+        </view>
+        <text class="empty-txt">等待中</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="waiting-tip" wx:if="{{players.length < 4}}">
+    <view class="dot-loader">
+      <view class="dot"></view>
+      <view class="dot"></view>
+      <view class="dot"></view>
+    </view>
+    <text class="tip-text">等待其他玩家加入 {{players.length}}/4</text>
+  </view>
+</view>

@@ -1,0 +1,206 @@
+<!-- pages/scoring/scoring.wxml -->
+<view class="container scoring-container">
+  <!-- 顶部状态栏 -->
+  <view class="top-bar">
+    <view class="game-info">
+      <text class="game-name">{{gameName}}</text>
+      <text class="round-info">第 {{currentRound}} 局 / 共 {{targetRounds}} 局</text>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{progressPct}}%"></view>
+    </view>
+  </view>
+
+  <!-- 队伍积分总览 -->
+  <view class="teams-overview">
+    <view class="team-card team-a {{teamAWinning ? 'team-leading' : ''}}">
+      <text class="team-label">A队</text>
+      <text class="team-score">{{teamAScore}}</text>
+      <view class="team-players">
+        <text class="team-player-name">{{players[0] ? players[0].nickname : '玩家1'}}</text>
+        <text class="team-player-sep"> & </text>
+        <text class="team-player-name">{{players[2] ? players[2].nickname : '玩家3'}}</text>
+      </view>
+      <view class="win-crown" wx:if="{{teamAWinning}}">👑</view>
+    </view>
+
+    <view class="vs-divider">
+      <text class="vs-text">VS</text>
+    </view>
+
+    <view class="team-card team-b {{!teamAWinning && teamBScore > 0 ? 'team-leading' : ''}}">
+      <text class="team-label">B队</text>
+      <text class="team-score">{{teamBScore}}</text>
+      <view class="team-players">
+        <text class="team-player-name">{{players[1] ? players[1].nickname : '玩家2'}}</text>
+        <text class="team-player-sep"> & </text>
+        <text class="team-player-name">{{players[3] ? players[3].nickname : '玩家4'}}</text>
+      </view>
+      <view class="win-crown" wx:if="{{!teamAWinning && teamBScore > 0 && teamBScore >= teamAScore}}">👑</view>
+    </view>
+  </view>
+
+  <!-- 记录本局结果 -->
+  <view class="score-input-section">
+    <view class="section-title-row">
+      <text class="section-title">记录第 {{currentRound}} 局</text>
+      <text class="score-rule-btn" bindtap="showRules">积分规则 ?</text>
+    </view>
+
+    <!-- 选择本局名次 -->
+    <text class="input-hint">选择本局名次排列（拖动调整顺序）</text>
+
+    <!-- 名次选择 -->
+    <view class="rank-selector">
+      <view class="rank-row">
+        <view class="rank-label-col">
+          <view class="rank-icon rank-1">🥇</view>
+          <text class="rank-text">第一名</text>
+        </view>
+        <picker
+          class="rank-picker"
+          value="{{rankIndexes[0]}}"
+          range="{{playerNames}}"
+          bindchange="onRank1Change"
+        >
+          <view class="picker-display">
+            <text>{{rankSelections[0] || '请选择'}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="rank-row">
+        <view class="rank-label-col">
+          <view class="rank-icon rank-2">🥈</view>
+          <text class="rank-text">第二名</text>
+        </view>
+        <picker
+          class="rank-picker"
+          value="{{rankIndexes[1]}}"
+          range="{{playerNames}}"
+          bindchange="onRank2Change"
+        >
+          <view class="picker-display">
+            <text>{{rankSelections[1] || '请选择'}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="rank-row">
+        <view class="rank-label-col">
+          <view class="rank-icon rank-3">🥉</view>
+          <text class="rank-text">第三名</text>
+        </view>
+        <picker
+          class="rank-picker"
+          value="{{rankIndexes[2]}}"
+          range="{{playerNames}}"
+          bindchange="onRank3Change"
+        >
+          <view class="picker-display">
+            <text>{{rankSelections[2] || '请选择'}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="rank-row">
+        <view class="rank-label-col">
+          <view class="rank-icon rank-4">4️⃣</view>
+          <text class="rank-text">第四名</text>
+        </view>
+        <picker
+          class="rank-picker"
+          value="{{rankIndexes[3]}}"
+          range="{{playerNames}}"
+          bindchange="onRank4Change"
+        >
+          <view class="picker-display">
+            <text>{{rankSelections[3] || '请选择'}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 积分预览 -->
+    <view class="score-preview" wx:if="{{previewReady}}">
+      <text class="preview-title">本局积分预览</text>
+      <view class="preview-teams">
+        <view class="preview-team">
+          <text class="preview-team-name">A队</text>
+          <text class="preview-score {{previewAScore > 0 ? 'pos' : 'zero'}}">
+            {{previewAScore > 0 ? '+' : ''}}{{previewAScore}}
+          </text>
+        </view>
+        <view class="preview-vs">VS</view>
+        <view class="preview-team">
+          <text class="preview-team-name">B队</text>
+          <text class="preview-score {{previewBScore > 0 ? 'pos' : 'zero'}}">
+            {{previewBScore > 0 ? '+' : ''}}{{previewBScore}}
+          </text>
+        </view>
+      </view>
+      <text class="preview-case">{{scoreCase}}</text>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button
+      class="btn-primary submit-btn {{!previewReady ? 'disabled' : ''}}"
+      disabled="{{!previewReady}}"
+      bindtap="submitRound"
+    >
+      确认本局积分
+    </button>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="history-section" wx:if="{{rounds.length > 0}}">
+    <text class="section-title">历史记录</text>
+    <view class="history-list">
+      <view class="history-item" wx:for="{{rounds}}" wx:key="roundNumber">
+        <text class="h-round">第{{item.roundNumber}}局</text>
+        <view class="h-case">{{item.caseText}}</view>
+        <view class="h-scores">
+          <text class="h-score-a {{item.scoreA > 0 ? 'pos' : 'zero'}}">A: {{item.scoreA > 0 ? '+' : ''}}{{item.scoreA}}</text>
+          <text class="h-score-b {{item.scoreB > 0 ? 'pos' : 'zero'}}">B: {{item.scoreB > 0 ? '+' : ''}}{{item.scoreB}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 结束牌局按钮 -->
+  <view class="end-game-row">
+    <button class="btn-end-game" bindtap="confirmEndGame">结束牌局</button>
+  </view>
+</view>
+
+<!-- 积分规则弹窗 -->
+<view class="modal-mask" wx:if="{{showRuleModal}}" bindtap="hideRules">
+  <view class="modal-box" catchtap="">
+    <text class="modal-title">积分规则</text>
+    <view class="rule-list">
+      <view class="rule-item">
+        <view class="rule-case case-300">300分局</view>
+        <text class="rule-desc">第一、二名同队（一二名均在同队）</text>
+        <text class="rule-formula">获胜队 +300，失败队 +0</text>
+      </view>
+      <view class="rule-divider"></view>
+      <view class="rule-item">
+        <view class="rule-case case-200">200分局</view>
+        <text class="rule-desc">第一、三名同队（一三名均在同队）</text>
+        <text class="rule-formula">获胜队 +200，失败队 +0</text>
+      </view>
+      <view class="rule-divider"></view>
+      <view class="rule-item">
+        <view class="rule-case case-100">100分局</view>
+        <text class="rule-desc">第一、四名同队（队友包揽首末）</text>
+        <text class="rule-formula">获胜队 +100，失败队 +0</text>
+      </view>
+    </view>
+    <text class="rule-note">* 没有第一名的队伍不得分</text>
+    <button class="modal-close" bindtap="hideRules">我知道了</button>
+  </view>
+</view>

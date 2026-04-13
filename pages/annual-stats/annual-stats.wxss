@@ -1,0 +1,336 @@
+/* pages/annual-stats/annual-stats.wxss */
+.stats-container {
+  min-height: 100vh;
+  padding: 0 0 100rpx;
+}
+
+/* 年份选择 */
+.year-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40rpx;
+  padding: 32rpx 0 20rpx;
+}
+
+.year-btn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: rgba(255,255,255,0.6);
+  border: 1rpx solid rgba(255,255,255,0.12);
+}
+
+.year-text {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* 核心数据 */
+.core-stats {
+  padding: 0 32rpx 0;
+  margin-bottom: 24rpx;
+}
+
+.core-card {
+  background: rgba(233,69,96,0.15);
+  border: 1rpx solid rgba(233,69,96,0.3);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.core-card.highlight {
+  background: linear-gradient(135deg, rgba(233,69,96,0.25), rgba(192,57,43,0.15));
+}
+
+.core-val {
+  display: block;
+  font-size: 88rpx;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 8rpx;
+}
+
+.core-label {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.55);
+}
+
+.core-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.core-card-sm {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1rpx solid rgba(255,255,255,0.08);
+  border-radius: 16rpx;
+  padding: 20rpx 0;
+  text-align: center;
+}
+
+.core-val-sm {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 6rpx;
+}
+
+.core-label-sm {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.4);
+}
+
+.text-green { color: #2ed573; }
+.text-gold { color: #f5c518; }
+.text-red { color: #e94560; }
+
+/* 通用卡片 */
+.section-card {
+  background: rgba(255,255,255,0.04);
+  border: 1rpx solid rgba(255,255,255,0.08);
+  border-radius: 20rpx;
+  padding: 28rpx 32rpx;
+  margin: 0 24rpx 20rpx;
+}
+
+.section-card-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 24rpx;
+}
+
+/* 名次分布 */
+.rank-dist {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.rank-dist-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.rank-dist-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.rank-dist-icon.rank-1 { background: linear-gradient(135deg, #f5c518, #e67e22); color: #fff; }
+.rank-dist-icon.rank-2 { background: linear-gradient(135deg, #bdc3c7, #95a5a6); color: #fff; }
+.rank-dist-icon.rank-3 { background: linear-gradient(135deg, #cd7f32, #a04000); color: #fff; }
+.rank-dist-icon.rank-4 { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+.rank-dist-bar-wrap {
+  flex: 1;
+  height: 16rpx;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.rank-dist-bar {
+  height: 100%;
+  border-radius: 8rpx;
+  background: linear-gradient(90deg, #e94560, #f5c518);
+  min-width: 4rpx;
+  transition: width 0.5s ease;
+}
+
+.rank-dist-count {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.6);
+  width: 60rpx;
+  text-align: right;
+}
+
+.rank-dist-pct {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.35);
+  width: 56rpx;
+  text-align: right;
+}
+
+/* 月度图表 */
+.monthly-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6rpx;
+  height: 240rpx;
+  padding-bottom: 48rpx;
+  position: relative;
+}
+
+.month-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.month-bar-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex: 1;
+}
+
+.month-bar {
+  width: 80%;
+  border-radius: 4rpx 4rpx 0 0;
+  min-height: 4rpx;
+  transition: height 0.4s ease;
+}
+
+.bar-pos { background: linear-gradient(180deg, #2ed573, #27ae60); }
+.bar-neg { background: linear-gradient(180deg, #e94560, #c0392b); border-radius: 0 0 4rpx 4rpx; align-self: flex-start; }
+
+.month-score {
+  font-size: 18rpx;
+  margin-top: 4rpx;
+  position: absolute;
+  bottom: 22rpx;
+}
+
+.month-label {
+  font-size: 18rpx;
+  color: rgba(255,255,255,0.35);
+  position: absolute;
+  bottom: 0;
+}
+
+/* 场均数据 */
+.avg-stats {
+  display: flex;
+  justify-content: space-around;
+}
+
+.avg-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.avg-val {
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.avg-label {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.4);
+}
+
+/* 战友列表 */
+.partner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.partner-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.partner-rank {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  width: 36rpx;
+  text-align: center;
+}
+
+.partner-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.partner-info {
+  flex: 1;
+}
+
+.partner-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 4rpx;
+}
+
+.partner-games {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.4);
+}
+
+.partner-winrate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+
+.partner-wr {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #f5c518;
+}
+
+.partner-wr-label {
+  font-size: 20rpx;
+  color: rgba(255,255,255,0.35);
+}
+
+.no-data {
+  text-align: center;
+  padding: 40rpx 0;
+  color: rgba(255,255,255,0.3);
+  font-size: 26rpx;
+}
+
+/* 年度总结 */
+.year-summary-card {
+  margin: 0 24rpx;
+  background: linear-gradient(135deg, rgba(245,197,24,0.12), rgba(233,69,96,0.08));
+  border: 1rpx solid rgba(245,197,24,0.2);
+  border-radius: 20rpx;
+  padding: 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.summary-emoji { font-size: 60rpx; }
+.summary-text { flex: 1; font-size: 28rpx; color: rgba(255,255,255,0.75); line-height: 1.6; }

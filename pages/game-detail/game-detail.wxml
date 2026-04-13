@@ -1,0 +1,64 @@
+<!-- pages/game-detail/game-detail.wxml -->
+<view class="container detail-container">
+  <!-- 顶部信息 -->
+  <view class="detail-header">
+    <text class="detail-game-name">{{game.name}}</text>
+    <text class="detail-date">{{game.formattedDate}}</text>
+    <view class="detail-status status-{{game.status}}">{{game.statusText}}</view>
+  </view>
+
+  <!-- 最终比分 -->
+  <view class="final-score-card">
+    <view class="team-final {{winner === 'A' ? 'winner' : 'loser'}}">
+      <text class="tf-label">A队</text>
+      <text class="tf-score">{{game.teamAScore}}</text>
+      <view class="tf-crown" wx:if="{{winner === 'A'}}">🏆</view>
+    </view>
+    <view class="final-vs">
+      <text class="fv-text">总积分</text>
+    </view>
+    <view class="team-final {{winner === 'B' ? 'winner' : 'loser'}}">
+      <text class="tf-label">B队</text>
+      <text class="tf-score">{{game.teamBScore}}</text>
+      <view class="tf-crown" wx:if="{{winner === 'B'}}">🏆</view>
+    </view>
+  </view>
+
+  <!-- 玩家详情 -->
+  <view class="players-detail-card">
+    <text class="pdc-title">玩家积分</text>
+    <view class="players-table">
+      <view class="pt-header">
+        <text class="pt-cell w40">玩家</text>
+        <text class="pt-cell w20">队伍</text>
+        <text class="pt-cell w20 right">积分</text>
+        <text class="pt-cell w20 right">名次</text>
+      </view>
+      <view class="pt-row" wx:for="{{game.players}}" wx:key="openid">
+        <view class="pt-cell w40 player-col">
+          <image class="pt-avatar" src="{{item.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <text class="pt-name">{{item.nickname}}</text>
+        </view>
+        <view class="pt-cell w20">
+          <text class="team-tag team-{{item.team}}">{{item.team}}队</text>
+        </view>
+        <text class="pt-cell w20 right score-txt {{item.score > 0 ? 'pos' : 'zero'}}">{{item.score > 0 ? '+' : ''}}{{item.score}}</text>
+        <text class="pt-cell w20 right rank-txt rank-c{{item.avgRank}}">{{item.avgRank}}名</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 每局记录 -->
+  <view class="rounds-card">
+    <text class="rc-title">逐局记录（共{{game.rounds.length}}局）</text>
+    <view class="rounds-list">
+      <view class="round-row" wx:for="{{game.rounds}}" wx:key="roundNumber">
+        <text class="rr-num">第{{item.roundNumber}}局</text>
+        <text class="rr-case">{{item.caseText}}</text>
+        <text class="rr-a {{item.scoreA > 0 ? 'pos' : 'zero'}}">A {{item.scoreA > 0 ? '+' : ''}}{{item.scoreA}}</text>
+        <text class="rr-sep">|</text>
+        <text class="rr-b {{item.scoreB > 0 ? 'pos' : 'zero'}}">B {{item.scoreB > 0 ? '+' : ''}}{{item.scoreB}}</text>
+      </view>
+    </view>
+  </view>
+</view>
