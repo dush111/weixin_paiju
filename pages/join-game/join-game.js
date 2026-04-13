@@ -22,7 +22,7 @@ Page({
 
   onCodeInput(e) {
     const val = e.detail.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    console.log("input "+ val);
+
     this.setData({ inviteCode: val.slice(0, 6) });
     // 满6位自动拉取游戏信息
     if (val.length >= 6) {

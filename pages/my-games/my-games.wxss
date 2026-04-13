@@ -91,7 +91,7 @@
 /* 游戏列表 */
 .games-list {
   flex: 1;
-  padding: 0 24rpx 120rpx;
+  padding: 20rpx 0;
 }
 
 .game-card {
