@@ -29,13 +29,13 @@ exports.main = async (event, context) => {
     }
 
     const host = users[0];
-    const code = generateCode();
+    const inviteCode = generateCode();
 
     // 创建牌局
     const result = await db.collection('games').add({
       data: {
         name: gameName,
-        code,
+        inviteCode: inviteCode,
         hostOpenid: OPENID,
         targetRounds: targetRounds || 10,
         currentRound: 1,
@@ -63,7 +63,7 @@ exports.main = async (event, context) => {
       success: true,
       data: {
         gameId: result._id,
-        gameCode: code,
+        gameCode: result.inviteCode,
         qrCodeUrl: '', // 实际部署时通过 wx.cloud.openapi.wxacode.getUnlimited 生成
       }
     };
