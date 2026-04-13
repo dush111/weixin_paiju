@@ -1,6 +1,7 @@
 {
   "description": "项目配置文件",
   "projectname": "转蛋积分",
+  "cloudfunctionRoot": "cloudfunctions/",
   "setting": {
     "urlCheck": false,
     "es6": true,
@@ -32,6 +33,6 @@
   },
   "compileType": "miniprogram",
   "libVersion": "2.19.4",
-  "appid": "your-appid-here",
+  "appid": "wx5e38846ee2522b72",
   "condition": {}
 }

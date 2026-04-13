@@ -3,7 +3,7 @@ App({
   globalData: {
     userInfo: null,
     openid: null,
-    cloudEnvId: 'your-cloud-env-id', // 替换为实际云环境ID
+    cloudEnvId: 'cloudbase-4g2d5c0m5b0e4704', // 替换为实际云环境ID
   },
 
   onLaunch() {
