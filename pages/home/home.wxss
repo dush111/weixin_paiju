@@ -228,14 +228,6 @@
   color: rgba(255,255,255,0.3);
 }
 
-.menu-card-primary .menu-arrow {
-  position: static;
-  transform: none;
-  margin-left: auto;
-  font-size: 40rpx;
-  color: rgba(255,255,255,0.4);
-}
-
 /* 最近牌局 */
 .recent-section {
   padding: 0 32rpx;
