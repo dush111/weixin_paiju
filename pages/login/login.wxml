@@ -16,8 +16,8 @@
     <text class="app-tagline">掼蛋计分记录神器</text>
   </view>
 
-  <!-- 登录卡片 -->
-  <view class="login-card">
+  <!-- 第一步：欢迎卡片（未登录时） -->
+  <view class="login-card" wx:if="{{step === 1}}">
     <view class="card-header">
       <text class="card-title">欢迎使用</text>
       <text class="card-desc">使用微信登录，自动同步您的记录</text>
@@ -48,11 +48,10 @@
       </view>
     </view>
 
-    <!-- 登录按钮 -->
+    <!-- 微信登录按钮 -->
     <button
       class="btn-wechat-login"
-      open-type="getUserInfo"
-      bindgetuserinfo="onGetUserInfo"
+      bindtap="doWxLogin"
       wx:if="{{!isLoading}}"
     >
       <text class="wechat-icon">微信</text>
@@ -66,6 +65,70 @@
     </view>
 
     <text class="privacy-text">登录即表示同意《用户协议》和《隐私政策》</text>
+  </view>
+
+  <!-- 第二步：填写昵称和头像 -->
+  <view class="login-card profile-card" wx:if="{{step === 2}}">
+    <view class="card-header">
+      <text class="card-title">完善资料</text>
+      <text class="card-desc">设置您的头像和昵称，让队友认识你</text>
+    </view>
+
+    <!-- 头像选择 -->
+    <view class="avatar-section">
+      <button
+        class="avatar-wrap"
+        open-type="chooseAvatar"
+        bindchooseavatar="onChooseAvatar"
+      >
+        <image
+          wx:if="{{tempAvatarUrl}}"
+          class="avatar-img"
+          src="{{tempAvatarUrl}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="avatar-placeholder">
+          <text class="avatar-placeholder-icon">📷</text>
+          <text class="avatar-placeholder-text">点击选择头像</text>
+        </view>
+        <view class="avatar-edit-badge">✎</view>
+      </button>
+      <text class="avatar-hint">点击头像使用微信头像</text>
+    </view>
+
+    <!-- 昵称输入（type="nickname" 可呼起微信键盘填充昵称） -->
+    <view class="nickname-section">
+      <text class="field-label">昵称</text>
+      <view class="nickname-input-wrap">
+        <input
+          class="nickname-input"
+          type="nickname"
+          placeholder="点击填写或使用微信昵称"
+          placeholder-class="input-placeholder"
+          value="{{tempNickname}}"
+          bindinput="onNicknameInput"
+          bindblur="onNicknameBlur"
+          maxlength="20"
+          confirm-type="done"
+        />
+        <text class="input-count">{{tempNickname.length}}/20</text>
+      </view>
+    </view>
+
+    <!-- 确认按钮 -->
+    <button
+      class="btn-confirm {{(!tempNickname || isLoading) ? 'btn-disabled' : ''}}"
+      bindtap="confirmProfile"
+      disabled="{{!tempNickname || isLoading}}"
+    >
+      <text wx:if="{{!isLoading}}">开始使用 →</text>
+      <view wx:else class="loading-inline">
+        <view class="loading-spinner-sm"></view>
+        <text>保存中...</text>
+      </view>
+    </button>
+
+    <text class="privacy-text">昵称将展示给同局玩家</text>
   </view>
 
   <!-- 底部版本 -->
