@@ -48,80 +48,42 @@
     </view>
 
     <!-- 选择本局名次 -->
-    <text class="input-hint">选择本局名次排列（拖动调整顺序）</text>
+    <text class="input-hint">点击头像为每个名次选择玩家</text>
 
-    <!-- 名次选择 -->
+    <!-- 名次选择：头像点选 -->
     <view class="rank-selector">
-      <view class="rank-row">
-        <view class="rank-label-col">
-          <view class="rank-icon rank-1">🥇</view>
-          <text class="rank-text">第一名</text>
+      <view class="rank-block" wx:for="{{rankBlocks}}" wx:key="rank" wx:for-item="block">
+        <!-- 名次标题 -->
+        <view class="rank-block-header">
+          <text class="rank-block-icon">{{block.icon}}</text>
+          <text class="rank-block-label">{{block.label}}</text>
+          <text class="rank-block-selected" wx:if="{{rankIndexes[block.rank] !== -1}}">
+            已选：{{rankSelections[block.rank]}}
+          </text>
+          <text class="rank-block-unselected" wx:else>未选择</text>
         </view>
-        <picker
-          class="rank-picker"
-          value="{{rankIndexes[0]}}"
-          range="{{playerNames}}"
-          bindchange="onRank1Change"
-        >
-          <view class="picker-display">
-            <text>{{rankSelections[0] || '请选择'}}</text>
-            <text class="picker-arrow">›</text>
+        <!-- 四个头像 -->
+        <view class="avatar-pick-row">
+          <view
+            wx:for="{{players}}"
+            wx:key="openid"
+            wx:for-item="player"
+            wx:for-index="pi"
+            class="avatar-pick-item
+              {{rankIndexes[block.rank] === pi ? 'selected' : ''}}
+              {{rankIndexes[block.rank] !== pi && usedIndexes[pi] ? 'disabled' : ''}}"
+            bindtap="onPickAvatar"
+            data-rank="{{block.rank}}"
+            data-pi="{{pi}}"
+          >
+            <image
+              class="pick-avatar"
+              src="{{player.avatarUrl || '/assets/images/default-avatar.png'}}"
+              mode="aspectFill"
+            />
+            <text class="pick-name">{{player.nickname}}</text>
           </view>
-        </picker>
-      </view>
-
-      <view class="rank-row">
-        <view class="rank-label-col">
-          <view class="rank-icon rank-2">🥈</view>
-          <text class="rank-text">第二名</text>
         </view>
-        <picker
-          class="rank-picker"
-          value="{{rankIndexes[1]}}"
-          range="{{playerNames}}"
-          bindchange="onRank2Change"
-        >
-          <view class="picker-display">
-            <text>{{rankSelections[1] || '请选择'}}</text>
-            <text class="picker-arrow">›</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="rank-row">
-        <view class="rank-label-col">
-          <view class="rank-icon rank-3">🥉</view>
-          <text class="rank-text">第三名</text>
-        </view>
-        <picker
-          class="rank-picker"
-          value="{{rankIndexes[2]}}"
-          range="{{playerNames}}"
-          bindchange="onRank3Change"
-        >
-          <view class="picker-display">
-            <text>{{rankSelections[2] || '请选择'}}</text>
-            <text class="picker-arrow">›</text>
-          </view>
-        </picker>
-      </view>
-
-      <view class="rank-row">
-        <view class="rank-label-col">
-          <view class="rank-icon rank-4">4️⃣</view>
-          <text class="rank-text">第四名</text>
-        </view>
-        <picker
-          class="rank-picker"
-          value="{{rankIndexes[3]}}"
-          range="{{playerNames}}"
-          bindchange="onRank4Change"
-        >
-          <view class="picker-display">
-            <text>{{rankSelections[3] || '请选择'}}</text>
-            <text class="picker-arrow">›</text>
-          </view>
-        </picker>
       </view>
     </view>
 
@@ -146,14 +108,19 @@
       <text class="preview-case">{{scoreCase}}</text>
     </view>
 
-    <!-- 提交按钮 -->
-    <button
-      class="btn-primary submit-btn {{!previewReady ? 'disabled' : ''}}"
-      disabled="{{!previewReady}}"
-      bindtap="submitRound"
-    >
-      确认本局积分
-    </button>
+    <!-- 操作按钮组 -->
+    <view class="action-btn-row">
+      <button
+        class="btn-cancel-sel {{selectedCount === 0 ? 'btn-sel-disabled' : ''}}"
+        disabled="{{selectedCount === 0}}"
+        bindtap="cancelSelection"
+      >取消选择</button>
+      <button
+        class="btn-confirm-sel {{!previewReady ? 'btn-sel-disabled' : ''}}"
+        disabled="{{!previewReady}}"
+        bindtap="submitRound"
+      >确认选择</button>
+    </view>
   </view>
 
   <!-- 历史记录 -->

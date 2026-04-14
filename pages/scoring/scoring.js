@@ -16,6 +16,14 @@ Page({
     // 当前局名次选择
     rankIndexes: [-1, -1, -1, -1],
     rankSelections: ['', '', '', ''],
+    usedIndexes: { 0: false, 1: false, 2: false, 3: false },
+    selectedCount: 0,
+    rankBlocks: [
+      { rank: 0, icon: '🥇', label: '第一名' },
+      { rank: 1, icon: '🥈', label: '第二名' },
+      { rank: 2, icon: '🥉', label: '第三名' },
+      { rank: 3, icon: '4️⃣', label: '第四名' },
+    ],
     previewReady: false,
     previewAScore: 0,
     previewBScore: 0,
@@ -72,41 +80,50 @@ Page({
     this.setData({ pollingTimer: timer });
   },
 
-  // 四个名次选择器
-  onRank1Change(e) { this.updateRank(0, e.detail.value); },
-  onRank2Change(e) { this.updateRank(1, e.detail.value); },
-  onRank3Change(e) { this.updateRank(2, e.detail.value); },
-  onRank4Change(e) { this.updateRank(3, e.detail.value); },
+  // 头像点选
+  onPickAvatar(e) {
+    const { rank, pi } = e.currentTarget.dataset;
+    const { rankIndexes, rankSelections, playerNames } = this.data;
+    const players = this.data.players;
 
-  updateRank(position, playerIndex) {
-    const { rankIndexes, rankSelections, playerNames, players } = this.data;
-    const idx = parseInt(playerIndex);
+    // 已被其他名次选中则不能点
+    const usedByOther = rankIndexes.some((idx, r) => idx === pi && r !== rank);
+    if (usedByOther) return;
 
-    // 检查是否重复选择
-    const existingPos = rankIndexes.indexOf(idx);
     let newIndexes = [...rankIndexes];
     let newSelections = [...rankSelections];
 
-    if (existingPos !== -1 && existingPos !== position) {
-      // 清除原位置
-      newIndexes[existingPos] = -1;
-      newSelections[existingPos] = '';
+    // 再次点同一个头像 → 取消选择
+    if (newIndexes[rank] === pi) {
+      newIndexes[rank] = -1;
+      newSelections[rank] = '';
+    } else {
+      newIndexes[rank] = pi;
+      newSelections[rank] = players[pi].nickname;
     }
 
-    newIndexes[position] = idx;
-    newSelections[position] = playerNames[idx];
+    const usedIndexes = { 0: false, 1: false, 2: false, 3: false };
+    newIndexes.forEach(idx => { if (idx !== -1) usedIndexes[idx] = true; });
+    const selectedCount = newIndexes.filter(i => i !== -1).length;
 
-    this.setData({
-      rankIndexes: newIndexes,
-      rankSelections: newSelections
-    });
+    this.setData({ rankIndexes: newIndexes, rankSelections: newSelections, usedIndexes, selectedCount });
 
-    // 检查是否四个都选了
     if (newIndexes.every(i => i !== -1)) {
       this.calcPreviewScore(newIndexes, players);
     } else {
       this.setData({ previewReady: false });
     }
+  },
+
+  // 取消所有选择
+  cancelSelection() {
+    this.setData({
+      rankIndexes: [-1, -1, -1, -1],
+      rankSelections: ['', '', '', ''],
+      usedIndexes: { 0: false, 1: false, 2: false, 3: false },
+      selectedCount: 0,
+      previewReady: false,
+    });
   },
 
   /**
@@ -202,6 +219,8 @@ Page({
               this.setData({
                 rankIndexes: [-1, -1, -1, -1],
                 rankSelections: ['', '', '', ''],
+                usedIndexes: { 0: false, 1: false, 2: false, 3: false },
+                selectedCount: 0,
                 previewReady: false
               });
 
