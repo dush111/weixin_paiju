@@ -24,6 +24,7 @@ exports.main = async (event, context) => {
       .get();
 
     // 基础统计
+    const RANK_SCORES = [30, 15, 5, 1];
     let totalScore = 0, wins = 0;
     const rankCounts = [0, 0, 0, 0]; // rank 1,2,3,4
     const monthlyMap = {};
@@ -32,14 +33,23 @@ exports.main = async (event, context) => {
     let currentStreak = 0, bestStreak = 0;
 
     games.forEach(game => {
-      const me = game.players.find(p => p.openid === OPENID);
+      const myIdx = game.players.findIndex(p => p.openid === OPENID);
+      const me = game.players[myIdx];
       if (!me) return;
 
-      const myScore = me.team === 'A' ? game.teamAScore : game.teamBScore;
-      const oppScore = me.team === 'A' ? game.teamBScore : game.teamAScore;
-      const isWin = myScore >= oppScore;
+      const myTeamScore = me.team === 'A' ? game.teamAScore : game.teamBScore;
+      const oppTeamScore = me.team === 'A' ? game.teamBScore : game.teamAScore;
+      const isWin = myTeamScore >= oppTeamScore;
 
-      totalScore += myScore;
+      // 按名次积分累加（每轮）
+      let gameScore = 0;
+      (game.rounds || []).forEach(round => {
+        if (!round.ranks) return;
+        const rankPos = round.ranks.indexOf(myIdx);
+        gameScore += RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
+      });
+      totalScore += gameScore;
+
       if (isWin) {
         wins++;
         currentStreak++;
@@ -50,16 +60,16 @@ exports.main = async (event, context) => {
 
       totalRounds += (game.rounds?.length || 0);
 
-      // 月度积分
+      // 月度积分（用本局名次积分之和）
       const date = new Date(game.createdAt);
       const month = date.getMonth() + 1;
       if (!monthlyMap[month]) monthlyMap[month] = 0;
-      monthlyMap[month] += myScore;
+      monthlyMap[month] += gameScore;
 
-      // 名次分布（取平均名次或最终名次）
+      // 名次分布（取各轮平均名次）
       if (game.rounds && game.rounds.length > 0) {
         const myRanks = game.rounds.map(r => {
-          const posInRanks = r.ranks.indexOf(me.position);
+          const posInRanks = r.ranks ? r.ranks.indexOf(myIdx) : -1;
           return posInRanks === -1 ? 4 : posInRanks + 1;
         });
         const avgRank = Math.round(myRanks.reduce((a, b) => a + b, 0) / myRanks.length);

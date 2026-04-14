@@ -15,11 +15,8 @@ exports.main = async (event, context) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // 并发查询：用户信息 + 进行中&等待中 + 最近已结束 + 今日已结束 + 全部已结束（算总分）
-    const [userRes, activeRes, recentRes, todayRes, allFinishedRes] = await Promise.all([
-      // 用户基础信息
-      db.collection('users').where({ openid: OPENID }).limit(1).get(),
-
+    // 并发查询：进行中&等待中 + 最近已结束 + 今日已结束 + 全部已结束（算总分）
+    const [activeRes, recentRes, todayRes, allFinishedRes] = await Promise.all([
       // 进行中（playing）或等待中（waiting）的房间
       db.collection('games')
         .where({
@@ -59,7 +56,6 @@ exports.main = async (event, context) => {
         .get(),
     ]);
 
-    const user = userRes.data[0] || {};
     const activeGames = activeRes.data;
     const recentGames = recentRes.data;
     const todayGames = todayRes.data;
