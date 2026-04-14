@@ -66,15 +66,13 @@ exports.main = async (event, context) => {
       if (!monthlyMap[month]) monthlyMap[month] = 0;
       monthlyMap[month] += gameScore;
 
-      // 名次分布（取各轮平均名次）
-      if (game.rounds && game.rounds.length > 0) {
-        const myRanks = game.rounds.map(r => {
-          const posInRanks = r.ranks ? r.ranks.indexOf(myIdx) : -1;
-          return posInRanks === -1 ? 4 : posInRanks + 1;
-        });
-        const avgRank = Math.round(myRanks.reduce((a, b) => a + b, 0) / myRanks.length);
-        rankCounts[Math.min(avgRank, 4) - 1]++;
-      }
+      // 名次分布（每轮名次单独计入，真实反映各名次出现次数）
+      (game.rounds || []).forEach(r => {
+        if (!r.ranks) return;
+        const posInRanks = r.ranks.indexOf(myIdx);
+        const rank = posInRanks === -1 ? 4 : posInRanks + 1;
+        rankCounts[Math.min(rank, 4) - 1]++;
+      });
 
       // 战友统计
       game.players.forEach(p => {
@@ -90,11 +88,12 @@ exports.main = async (event, context) => {
     const totalGames = games.length;
     const winRate = totalGames > 0 ? Math.round(wins / totalGames * 100) : 0;
 
-    // 名次分布百分比
+    // 名次分布百分比（分母为总轮数）
+    const rankDistTotal = rankCounts.reduce((a, b) => a + b, 0);
     const rankDist = rankCounts.map((count, i) => ({
       rank: i + 1,
       count,
-      pct: totalGames > 0 ? Math.round(count / totalGames * 100) : 0
+      pct: rankDistTotal > 0 ? Math.round(count / rankDistTotal * 100) : 0
     }));
 
     // 月度数据（1-12月）
