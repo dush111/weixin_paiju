@@ -66,13 +66,25 @@ exports.main = async (event, context) => {
       if (!monthlyMap[month]) monthlyMap[month] = 0;
       monthlyMap[month] += gameScore;
 
-      // 名次分布（每轮名次单独计入，真实反映各名次出现次数）
-      (game.rounds || []).forEach(r => {
-        if (!r.ranks) return;
-        const posInRanks = r.ranks.indexOf(myIdx);
-        const rank = posInRanks === -1 ? 4 : posInRanks + 1;
-        rankCounts[Math.min(rank, 4) - 1]++;
-      });
+      // 名次分布：按整场对局各玩家总积分排名，取本人最终名次计入
+      if (game.rounds && game.rounds.length > 0) {
+        const playerCount = game.players.length;
+        const gameTotals = new Array(playerCount).fill(0);
+        game.rounds.forEach(r => {
+          if (!r.ranks) return;
+          r.ranks.forEach((pIdx, rankPos) => {
+            if (pIdx >= 0 && pIdx < playerCount) {
+              gameTotals[pIdx] += RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
+            }
+          });
+        });
+        // 按总积分降序排列，找到本人的最终名次（1-based）
+        const sorted = gameTotals
+          .map((s, i) => ({ i, s }))
+          .sort((a, b) => b.s - a.s);
+        const myFinalRank = sorted.findIndex(x => x.i === myIdx) + 1;
+        rankCounts[Math.min(myFinalRank, 4) - 1]++;
+      }
 
       // 战友统计
       game.players.forEach(p => {
@@ -88,12 +100,11 @@ exports.main = async (event, context) => {
     const totalGames = games.length;
     const winRate = totalGames > 0 ? Math.round(wins / totalGames * 100) : 0;
 
-    // 名次分布百分比（分母为总轮数）
-    const rankDistTotal = rankCounts.reduce((a, b) => a + b, 0);
+    // 名次分布百分比（分母为总对局数，每场对局贡献1次）
     const rankDist = rankCounts.map((count, i) => ({
       rank: i + 1,
       count,
-      pct: rankDistTotal > 0 ? Math.round(count / rankDistTotal * 100) : 0
+      pct: totalGames > 0 ? Math.round(count / totalGames * 100) : 0
     }));
 
     // 月度数据（1-12月）
