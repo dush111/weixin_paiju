@@ -44,6 +44,41 @@
     </view>
   </view>
 
+  <!-- 进行中 / 等待中的房间：有时置顶，放在菜单上方 -->
+  <view class="active-section" wx:if="{{activeGames.length > 0}}">
+    <view class="section-header">
+      <view class="section-title-wrap">
+        <view class="active-dot"></view>
+        <text class="section-title">进行中的房间</text>
+      </view>
+    </view>
+    <view class="active-list">
+      <view
+        class="active-item"
+        wx:for="{{activeGames}}"
+        wx:key="_id"
+        bindtap="resumeGame"
+        data-id="{{item._id}}"
+        data-status="{{item.status}}"
+      >
+        <view class="active-left">
+          <view class="active-status-badge {{item.status === 'playing' ? 'badge-playing' : 'badge-waiting'}}">
+            <text>{{item.status === 'playing' ? '进行中' : '等待中'}}</text>
+          </view>
+          <view class="active-info">
+            <text class="active-name">{{item.name || '掼蛋牌局'}}</text>
+            <text class="active-meta">{{item.playersText}} · 第{{item.currentRound}}局</text>
+          </view>
+        </view>
+        <view class="active-right">
+          <view class="btn-resume">
+            <text>继续 ›</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 主菜单按钮 -->
   <view class="menu-grid">
     <!-- 新建牌局 -->
@@ -97,41 +132,6 @@
     </view>
   </view>
 
-  <!-- 进行中 / 等待中的房间（有则显示） -->
-  <view class="active-section" wx:if="{{activeGames.length > 0}}">
-    <view class="section-header">
-      <view class="section-title-wrap">
-        <view class="active-dot"></view>
-        <text class="section-title">进行中的房间</text>
-      </view>
-    </view>
-    <view class="active-list">
-      <view
-        class="active-item"
-        wx:for="{{activeGames}}"
-        wx:key="_id"
-        bindtap="resumeGame"
-        data-id="{{item._id}}"
-        data-status="{{item.status}}"
-      >
-        <view class="active-left">
-          <view class="active-status-badge {{item.status === 'playing' ? 'badge-playing' : 'badge-waiting'}}">
-            <text>{{item.status === 'playing' ? '进行中' : '等待中'}}</text>
-          </view>
-          <view class="active-info">
-            <text class="active-name">{{item.name || '掼蛋牌局'}}</text>
-            <text class="active-meta">{{item.playersText}} · 第{{item.currentRound}}局</text>
-          </view>
-        </view>
-        <view class="active-right">
-          <view class="btn-resume">
-            <text>继续 ›</text>
-          </view>
-        </view>
-      </view>
-    </view>
-  </view>
-
   <!-- 最近牌局 -->
   <view class="recent-section">
     <view class="section-header">
@@ -167,6 +167,20 @@
           <text class="recent-rounds">{{item.rounds}}局</text>
         </view>
       </view>
+    </view>
+  </view>
+
+  <!-- 进行中的房间为空时，放在最下方（最近牌局之后） -->
+  <view class="active-section active-section-bottom" wx:if="{{activeGames.length === 0}}">
+    <view class="section-header">
+      <view class="section-title-wrap">
+        <view class="active-dot inactive-dot"></view>
+        <text class="section-title">进行中的房间</text>
+      </view>
+    </view>
+    <view class="empty-active">
+      <text class="empty-active-text">暂无进行中的房间</text>
+      <text class="empty-active-sub">新建或加入牌局后将在此显示</text>
     </view>
   </view>
 </view>
