@@ -8,6 +8,9 @@ Page({
     targetRounds: 10,
     currentRound: 1,
     progressPct: 0,
+    isHost: false,
+    currentLevel: '2',
+    levelOptions: ['2','3','4','5','6','7','8','9','10','J','Q','K','A'],
     players: [],
     playerNames: [],
     teamAScore: 0,
@@ -55,10 +58,13 @@ Page({
       if (res.result.success) {
         const d = res.result.data;
         const playerNames = d.players.map(p => p.nickname);
+        const myOpenid = app.globalData?.userInfo?.openid || app.getUserInfo()?.openid;
         this.setData({
           gameName: d.name,
           targetRounds: d.targetRounds,
           currentRound: d.currentRound,
+          isHost: d.hostOpenid === myOpenid,
+          currentLevel: d.currentLevel || '2',
           players: d.players,
           playerNames,
           teamAScore: d.teamAScore,
@@ -280,5 +286,65 @@ Page({
   },
 
   showRules() { this.setData({ showRuleModal: true }); },
-  hideRules() { this.setData({ showRuleModal: false }); }
+  hideRules() { this.setData({ showRuleModal: false }); },
+
+  // 房主修改计划局数
+  changeTargetRounds() {
+    if (!this.data.isHost) return;
+    const { currentRound, targetRounds } = this.data;
+    const minVal = currentRound; // 不能小于当前局（已完成 currentRound-1 局，下一局是 currentRound）
+    const options = [];
+    for (let i = minVal; i <= 30; i++) options.push(String(i) + '局');
+    wx.showActionSheet({
+      itemList: options,
+      success: async (res) => {
+        const newVal = minVal + res.tapIndex;
+        if (newVal === targetRounds) return;
+        try {
+          const result = await wx.cloud.callFunction({
+            name: 'updateGameSettings',
+            data: { gameId: this.data.gameId, targetRounds: newVal }
+          });
+          if (result.result.success) {
+            this.setData({
+              targetRounds: newVal,
+              progressPct: Math.round((this.data.currentRound - 1) / newVal * 100)
+            });
+            wx.showToast({ title: `已改为 ${newVal} 局`, icon: 'success' });
+          } else {
+            wx.showToast({ title: result.result.message || '修改失败', icon: 'none' });
+          }
+        } catch (err) {
+          wx.showToast({ title: '网络错误', icon: 'none' });
+        }
+      }
+    });
+  },
+
+  // 房主修改级牌
+  changeLevel() {
+    if (!this.data.isHost) return;
+    const { levelOptions, currentLevel } = this.data;
+    wx.showActionSheet({
+      itemList: levelOptions,
+      success: async (res) => {
+        const newLevel = levelOptions[res.tapIndex];
+        if (newLevel === currentLevel) return;
+        try {
+          const result = await wx.cloud.callFunction({
+            name: 'updateGameSettings',
+            data: { gameId: this.data.gameId, currentLevel: newLevel }
+          });
+          if (result.result.success) {
+            this.setData({ currentLevel: newLevel });
+            wx.showToast({ title: `级牌改为 ${newLevel}`, icon: 'success' });
+          } else {
+            wx.showToast({ title: result.result.message || '修改失败', icon: 'none' });
+          }
+        } catch (err) {
+          wx.showToast({ title: '网络错误', icon: 'none' });
+        }
+      }
+    });
+  },
 });

@@ -1,0 +1,9 @@
+{
+  "name": "updateGameSettings",
+  "version": "1.0.0",
+  "description": "修改牌局设置（计划局数、级牌）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

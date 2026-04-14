@@ -6,7 +6,7 @@ Page({
     step: 1,
     gameName: '',
     targetRounds: 10,
-    roundOptions: [5, 8, 10, 15, 20],
+    roundOptions: [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
     gameId: null,
     gameCode: '',
     qrCodeUrl: '',

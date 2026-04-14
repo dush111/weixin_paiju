@@ -75,6 +75,13 @@ Page({
 
     const statusMap = { playing: '进行中', finished: '已结束', cancelled: '已取消' };
 
+    const roundCount = game.rounds?.length || 0;
+    const playerCount = game.players?.length || 0;
+    // 四人已满且完成了全部计划局数 → 正常结束，不可删除
+    const isCompleted = game.status === 'finished'
+      && playerCount === 4
+      && roundCount >= (game.targetRounds || 1);
+
     return {
       ...game,
       myRank,
@@ -83,7 +90,8 @@ Page({
       playersText: otherPlayers ? `与${otherPlayers}等` : '牌局',
       formattedDate,
       statusText: statusMap[game.status] || '未知',
-      rounds: game.rounds?.length || 0
+      rounds: roundCount,
+      canDelete: !isCompleted,
     };
   },
 

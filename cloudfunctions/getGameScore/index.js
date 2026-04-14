@@ -19,6 +19,8 @@ exports.main = async (event, context) => {
         teamAScore: game.teamAScore,
         teamBScore: game.teamBScore,
         rounds: game.rounds || [],
+        currentLevel: game.currentLevel || '2',
+        hostOpenid: game.hostOpenid,
       }
     };
   } catch (err) {

@@ -9,6 +9,19 @@
     <view class="progress-bar">
       <view class="progress-fill" style="width: {{progressPct}}%"></view>
     </view>
+    <!-- 计划局数 + 级牌 -->
+    <view class="settings-row">
+      <view class="setting-chip {{isHost ? 'setting-chip-host' : ''}}" bindtap="changeTargetRounds">
+        <text class="setting-chip-label">计划局数</text>
+        <text class="setting-chip-val">{{targetRounds}} 局</text>
+        <text class="setting-chip-edit" wx:if="{{isHost}}">▾</text>
+      </view>
+      <view class="setting-chip {{isHost ? 'setting-chip-host' : ''}}" bindtap="changeLevel">
+        <text class="setting-chip-label">当前级牌</text>
+        <text class="setting-chip-val level-val">{{currentLevel}}</text>
+        <text class="setting-chip-edit" wx:if="{{isHost}}">▾</text>
+      </view>
+    </view>
   </view>
 
   <!-- 队伍积分总览 -->
