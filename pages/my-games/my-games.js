@@ -7,7 +7,7 @@ Page({
       { key: 'all', label: '全部' },
       { key: 'finished', label: '已结束' },
       { key: 'playing', label: '进行中' },
-      { key: 'win', label: '我赢了' },
+      { key: 'win', label: '胜场' },
     ],
     activeFilter: 'all',
     games: [],

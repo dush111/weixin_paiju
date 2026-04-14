@@ -38,10 +38,13 @@ exports.main = async (event, context) => {
     const newCurrentRound = roundNumber + 1;
     const gameOver = roundNumber >= game.targetRounds;
 
+    // 名次对应本局积分：第1名30、第2名15、第3名5、第4名1
+    const RANK_SCORES = [30, 15, 5, 1];
+
     // 同步更新每位玩家的个人积分
     const updatedPlayers = game.players.map((p, idx) => {
       const rankPos = ranks.indexOf(idx); // 0=第一名，1=第二名...
-      const playerScore = (p.team === 'A' ? scoreA : scoreB);
+      const playerScore = RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
       return {
         ...p,
         score: (p.score || 0) + playerScore,
@@ -64,7 +67,7 @@ exports.main = async (event, context) => {
 
     // 如果游戏结束，更新所有玩家的统计数据
     if (gameOver) {
-      await updatePlayerStats(game, newTeamAScore, newTeamBScore, updatedPlayers);
+      await updatePlayerStats(game, newTeamAScore, newTeamBScore, updatedPlayers, ranks);
     }
 
     return {
@@ -83,14 +86,17 @@ exports.main = async (event, context) => {
 };
 
 // 游戏结束后更新玩家统计
-async function updatePlayerStats(game, finalA, finalB, updatedPlayers) {
+// ranks: [rank1_playerIdx, rank2_playerIdx, ...] 按名次排列
+async function updatePlayerStats(game, finalA, finalB, updatedPlayers, ranks) {
+  const RANK_SCORES = [30, 15, 5, 1];
   const winningTeam = finalA >= finalB ? 'A' : 'B';
 
-  const updates = updatedPlayers.map(async (player) => {
+  const updates = updatedPlayers.map(async (player, idx) => {
+    const rankPos = ranks.indexOf(idx);
+    const rankScore = RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
     const isWinner = player.team === winningTeam;
     await db.collection('users').where({ openid: player.openid }).update({
       data: {
-        totalScore: db.command.inc(player.team === 'A' ? finalA : finalB),
         totalGames: db.command.inc(1),
         wins: db.command.inc(isWinner ? 1 : 0),
         updatedAt: db.serverDate(),

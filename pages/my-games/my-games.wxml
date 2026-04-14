@@ -11,8 +11,8 @@
     >{{item.label}}</view>
   </view>
 
-  <!-- 统计摘要 -->
-  <view class="summary-bar">
+  <!-- 统计摘要：仅"已结束"筛选时显示 -->
+  <view class="summary-bar" wx:if="{{activeFilter === 'finished'}}">
     <view class="summary-item">
       <text class="sum-val">{{summary.total}}</text>
       <text class="sum-label">总场次</text>
