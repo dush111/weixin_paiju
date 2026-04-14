@@ -43,7 +43,7 @@
           <text class="team-tag team-{{item.team}}">{{item.team}}队</text>
         </view>
         <text class="pt-cell w20 right score-txt {{item.score > 0 ? 'pos' : 'zero'}}">{{item.score > 0 ? '+' : ''}}{{item.score}}</text>
-        <text class="pt-cell w20 right rank-txt rank-c{{item.avgRank}}">{{item.avgRank}}名</text>
+        <text class="pt-cell w20 right rank-txt rank-c{{item.rankLabel}}">{{item.rankLabel}}</text>
       </view>
     </view>
   </view>
