@@ -82,9 +82,7 @@
             wx:key="openid"
             wx:for-item="player"
             wx:for-index="pi"
-            class="avatar-pick-item
-              {{rankIndexes[block.rank] === pi ? 'selected' : ''}}
-              {{rankIndexes[block.rank] !== pi && usedIndexes[pi] ? 'disabled' : ''}}"
+            class="avatar-pick-item {{rankIndexes[block.rank] === pi ? 'selected' : ''}} {{rankIndexes[block.rank] !== pi && usedIndexes[pi] ? 'disabled' : ''}}"
             bindtap="onPickAvatar"
             data-rank="{{block.rank}}"
             data-pi="{{pi}}"
