@@ -5,23 +5,22 @@ Page({
   data: {
     step: 1,           // 1=登录入口  2=填写头像昵称
     isLoading: false,
-    tempAvatarUrl: '', // 用户选择的临时头像
+    tempAvatarUrl: '', // 用户选择的临时头像（本地路径）
     tempNickname: '',  // 用户输入的昵称
   },
 
   onLoad() {
-    // 已登录直接进主页
     const userInfo = app.getUserInfo();
     if (userInfo) {
       this.navigateToHome();
     }
   },
 
-  // 第一步：微信静默登录，获取 openid
+  // ─── 第一步：微信静默登录，获取 openid ───────────────────────────
   async doWxLogin() {
     if (this.data.isLoading) return;
     this.setData({ isLoading: true });
-    wx.showLoading({ title: '登录中...' });
+    wx.showLoading({ title: '登录中...', mask: true });
 
     try {
       const res = await wx.cloud.callFunction({
@@ -30,67 +29,68 @@ Page({
       });
       wx.hideLoading();
 
-      if (res.result.success) {
-        const userData = res.result.data;
+      if (!res.result.success) throw new Error(res.result.message || '登录失败');
 
-        if (userData.isNewUser) {
-          // 新用户：进入第二步填写头像昵称
-          this.setData({
-            step: 2,
-            isLoading: false,
-            // 预填已有微信昵称（如果有）
-            tempNickname: userData.nickname || '',
-            tempAvatarUrl: userData.avatarUrl || '',
-          });
-        } else {
-          // 老用户：直接进主页
-          app.setUserInfo(userData);
-          wx.showToast({ title: '登录成功', icon: 'success', duration: 1000 });
-          setTimeout(() => this.navigateToHome(), 1000);
-          this.setData({ isLoading: false });
-        }
+      const userData = res.result.data;
+
+      if (userData.isNewUser) {
+        // 新用户 → 进入第二步设置头像昵称
+        this.setData({
+          step: 2,
+          isLoading: false,
+          tempNickname: userData.nickname || '',
+          tempAvatarUrl: userData.avatarUrl || '',
+        });
       } else {
-        throw new Error(res.result.message || '登录失败');
+        // 老用户 → 直接进首页
+        app.setUserInfo(userData);
+        wx.showToast({ title: '登录成功', icon: 'success', duration: 1000 });
+        setTimeout(() => this.navigateToHome(), 1000);
+        this.setData({ isLoading: false });
       }
     } catch (err) {
       wx.hideLoading();
       console.error('登录失败:', err);
-      wx.showToast({ title: '登录失败，请重试', icon: 'error' });
+      wx.showToast({ title: err.message || '登录失败，请重试', icon: 'none' });
       this.setData({ isLoading: false });
     }
   },
 
-  // 第二步：选择头像（新 API）
+  // ─── 第二步：选择微信头像（open-type="chooseAvatar"）──────────────
   onChooseAvatar(e) {
+    // e.detail.avatarUrl 是微信给的临时文件路径，形如 http://tmp/xxx.jpg
     const { avatarUrl } = e.detail;
-    this.setData({ tempAvatarUrl: avatarUrl });
+    if (avatarUrl) {
+      this.setData({ tempAvatarUrl: avatarUrl });
+    }
   },
 
-  // 输入昵称
+  // ─── 第二步：输入昵称（type="nickname" 支持微信键盘一键填入）────────
   onNicknameInput(e) {
     this.setData({ tempNickname: e.detail.value });
   },
 
-  // 昵称失焦（微信键盘选择昵称后触发）
   onNicknameBlur(e) {
+    // 微信键盘选择昵称后会触发 blur，此时 value 已是最终值
     this.setData({ tempNickname: e.detail.value });
   },
 
-  // 第二步：确认保存头像昵称
+  // ─── 第二步：确认 → 先上传头像到云存储，再保存资料 ─────────────────
   async confirmProfile() {
     const { tempNickname, tempAvatarUrl, isLoading } = this.data;
     if (!tempNickname.trim() || isLoading) return;
 
     this.setData({ isLoading: true });
-    wx.showLoading({ title: '保存中...' });
+    wx.showLoading({ title: '保存中...', mask: true });
 
     try {
-      // 如果选择了头像，先上传到云存储
-      let finalAvatarUrl = tempAvatarUrl;
-      if (tempAvatarUrl && tempAvatarUrl.startsWith('http://tmp/')) {
-        finalAvatarUrl = await this.uploadAvatar(tempAvatarUrl);
+      // 1. 上传头像（如果用户选择了头像）
+      let finalAvatarUrl = '';
+      if (tempAvatarUrl) {
+        finalAvatarUrl = await this._uploadAvatar(tempAvatarUrl);
       }
 
+      // 2. 调用云函数保存昵称 + 头像 URL 到数据库
       const res = await wx.cloud.callFunction({
         name: 'userLogin',
         data: {
@@ -101,34 +101,42 @@ Page({
       });
       wx.hideLoading();
 
-      if (res.result.success) {
-        app.setUserInfo(res.result.data);
-        wx.showToast({ title: '设置成功', icon: 'success', duration: 1000 });
-        setTimeout(() => this.navigateToHome(), 1000);
-      } else {
-        throw new Error(res.result.message || '保存失败');
-      }
+      if (!res.result.success) throw new Error(res.result.message || '保存失败');
+
+      app.setUserInfo(res.result.data);
+      wx.showToast({ title: '设置成功', icon: 'success', duration: 1000 });
+      setTimeout(() => this.navigateToHome(), 1000);
     } catch (err) {
       wx.hideLoading();
       console.error('保存资料失败:', err);
-      wx.showToast({ title: '保存失败，请重试', icon: 'error' });
+      wx.showToast({ title: err.message || '保存失败，请重试', icon: 'none' });
       this.setData({ isLoading: false });
     }
   },
 
-  // 上传头像到云存储
-  async uploadAvatar(tempFilePath) {
+  // ─── 上传头像到云存储 ────────────────────────────────────────────
+  async _uploadAvatar(tempFilePath) {
+    // 微信 chooseAvatar 给的路径以 http://tmp/ 开头
+    // 也有可能是 wxfile:// 或其他临时协议，统一尝试上传
     try {
-      const ext = tempFilePath.split('.').pop() || 'jpg';
-      const cloudPath = `avatars/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      // 从路径尾部取扩展名，找不到则默认 jpg
+      const match = tempFilePath.match(/\.([a-zA-Z0-9]+)(\?|$)/);
+      const ext = (match ? match[1] : 'jpg').toLowerCase();
+      const cloudPath = `avatars/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+      wx.showLoading({ title: '上传头像...', mask: true });
       const uploadRes = await wx.cloud.uploadFile({
         cloudPath,
         filePath: tempFilePath,
       });
-      return uploadRes.fileID;
+      wx.hideLoading();
+
+      return uploadRes.fileID; // 云存储永久 ID
     } catch (err) {
-      console.error('头像上传失败:', err);
-      return tempFilePath; // 上传失败则用临时路径（仅本次有效）
+      wx.hideLoading();
+      console.error('头像上传失败，将跳过头像设置:', err);
+      // 上传失败不阻断流程，返回空串（后续可在「更改昵称」页补传）
+      return '';
     }
   },
 

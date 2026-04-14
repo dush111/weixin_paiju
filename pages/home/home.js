@@ -9,6 +9,7 @@ Page({
     todayDate: '',
     todayStats: { games: 0, score: 0, wins: 0 },
     recentGames: [],
+    activeGames: [],   // 进行中 / 等待中的房间
   },
 
   onLoad() {
@@ -53,17 +54,28 @@ Page({
         data: {}
       });
       if (res.result.success) {
-        const { totalScore, todayStats, recentGames } = res.result.data;
+        const { totalScore, todayStats, recentGames, activeGames } = res.result.data;
         this.setData({
           totalScore,
           todayStats,
           recentGames: recentGames.map(g => this.formatGame(g)),
+          activeGames: (activeGames || []).map(g => this.formatActiveGame(g)),
           rankText: this.getRankText(totalScore)
         });
       }
     } catch (err) {
       console.error('加载数据失败:', err);
     }
+  },
+
+  // 格式化进行中的游戏
+  formatActiveGame(game) {
+    const names = (game.players || []).map(p => p.nickname).join('、');
+    return {
+      ...game,
+      playersText: names || '等待玩家',
+      currentRound: game.rounds ? game.rounds.length + 1 : 1,
+    };
   },
 
   formatGame(game) {
@@ -97,6 +109,17 @@ Page({
 
   joinGame() {
     wx.navigateTo({ url: '/pages/join-game/join-game' });
+  },
+
+  // 点击进行中的房间，根据状态跳转不同页面
+  resumeGame(e) {
+    const { id, status } = e.currentTarget.dataset;
+    if (status === 'playing') {
+      wx.navigateTo({ url: `/pages/scoring/scoring?gameId=${id}` });
+    } else {
+      // waiting 状态 → 等待室
+      wx.navigateTo({ url: `/pages/waiting-room/waiting-room?gameId=${id}` });
+    }
   },
 
   goToMyGames() {
