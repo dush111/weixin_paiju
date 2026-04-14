@@ -50,8 +50,9 @@
 
     <!-- 微信登录按钮 -->
     <button
-      class="btn-wechat-login"
+      class="btn-wechat-login {{!agreed ? 'btn-wechat-disabled' : ''}}"
       bindtap="doWxLogin"
+      disabled="{{!agreed}}"
       wx:if="{{!isLoading}}"
     >微信一键登录</button>
 
@@ -61,7 +62,38 @@
       <text>登录中...</text>
     </view>
 
-    <text class="privacy-text">登录即表示同意《用户协议》和《隐私政策》</text>
+    <!-- 协议勾选行 -->
+    <view class="agree-row" bindtap="toggleAgreed">
+      <view class="agree-circle {{agreed ? 'agree-circle-checked' : ''}}">
+        <text class="agree-check-icon" wx:if="{{agreed}}">✓</text>
+      </view>
+      <text class="agree-text">登录即表示同意</text>
+      <text class="agree-link" catchtap="showUserAgreement">《用户协议》</text>
+      <text class="agree-text">和</text>
+      <text class="agree-link" catchtap="showPrivacyPolicy">《隐私政策》</text>
+    </view>
+  </view>
+
+  <!-- 用户协议弹窗 -->
+  <view class="agreement-mask" wx:if="{{showAgreement}}" bindtap="closeAgreement">
+    <view class="agreement-box" catchtap="">
+      <text class="agreement-title">用户协议</text>
+      <scroll-view class="agreement-scroll" scroll-y>
+        <text class="agreement-content">{{agreementText}}</text>
+      </scroll-view>
+      <button class="agreement-close-btn" bindtap="closeAgreement">我知道了</button>
+    </view>
+  </view>
+
+  <!-- 隐私政策弹窗 -->
+  <view class="agreement-mask" wx:if="{{showPrivacy}}" bindtap="closePrivacy">
+    <view class="agreement-box" catchtap="">
+      <text class="agreement-title">隐私政策</text>
+      <scroll-view class="agreement-scroll" scroll-y>
+        <text class="agreement-content">{{privacyText}}</text>
+      </scroll-view>
+      <button class="agreement-close-btn" bindtap="closePrivacy">我知道了</button>
+    </view>
   </view>
 
   <!-- 第二步：填写昵称和头像 -->

@@ -58,11 +58,20 @@ Page({
   },
 
   formatGame(game) {
+    const RANK_SCORES = [30, 15, 5, 1];
     const myOpenid = app.globalData.userInfo?.openid;
-    const myPlayer = game.players.find(p => p.openid === myOpenid);
+    const myIdx = game.players.findIndex(p => p.openid === myOpenid);
+    const myPlayer = myIdx >= 0 ? game.players[myIdx] : null;
     const myRank = myPlayer?.rank || 4;
-    const myScore = myPlayer?.team === 'A' ? game.teamAScore : game.teamBScore;
     const myTeam = myPlayer?.team || '-';
+
+    // 个人积分：遍历每轮 ranks 按名次累加
+    let myScore = 0;
+    (game.rounds || []).forEach(round => {
+      if (!round.ranks) return;
+      const rankPos = round.ranks.indexOf(myIdx);
+      myScore += RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
+    });
 
     const otherPlayers = game.players
       .filter(p => p.openid !== myOpenid)
