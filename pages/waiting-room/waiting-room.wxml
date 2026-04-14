@@ -32,6 +32,7 @@
     </view>
   </view>
 
+  <!-- 未满4人：等待提示 -->
   <view class="waiting-tip" wx:if="{{players.length < 4}}">
     <view class="dot-loader">
       <view class="dot"></view>
@@ -39,5 +40,23 @@
       <view class="dot"></view>
     </view>
     <text class="tip-text">等待其他玩家加入 {{players.length}}/4</text>
+  </view>
+
+  <!-- 满4人：房主显示开始按钮，其他人显示等待提示 -->
+  <view wx:if="{{players.length === 4}}">
+    <view wx:if="{{isHost}}" class="start-area">
+      <view class="start-btn {{starting ? 'starting' : ''}}" bindtap="startGame">
+        <text class="start-btn-text">{{starting ? '开始中...' : '开始游戏'}}</text>
+      </view>
+      <text class="start-hint">所有玩家已就位，点击开始游戏</text>
+    </view>
+    <view wx:else class="waiting-tip">
+      <view class="dot-loader">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+      <text class="tip-text">等待房主开始游戏...</text>
+    </view>
   </view>
 </view>

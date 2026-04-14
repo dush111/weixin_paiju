@@ -26,19 +26,19 @@ exports.main = async (event, context) => {
     }
 
     if (!game) return { success: false, message: '牌局不存在' };
-    if (game.status !== 'waiting') return { success: false, message: '牌局已开始或已结束' };
 
-    const ownerPlayer = game.players.find(p => p.isHost);
+    const ownerPlayer = (game.players || []).find(p => p.isHost);
     return {
       success: true,
       data: {
         _id: game._id,
         name: game.name,
         inviteCode: game.inviteCode,
+        hostOpenid: game.hostOpenid,
         ownerName: ownerPlayer ? ownerPlayer.nickname : '未知',
         playerCount: game.players.length,
         totalRounds: game.totalRounds,
-        players: game.players.map(p => ({ openid: p.openid, nickname: p.nickname })),
+        players: game.players.map(p => ({ openid: p.openid, nickname: p.nickname, isHost: p.isHost, avatarUrl: p.avatarUrl })),
         status: game.status,
       }
     };

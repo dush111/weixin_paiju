@@ -7,6 +7,8 @@ Page({
     gameName: '',
     gameCode: '',
     players: [],
+    isHost: false,
+    starting: false,
     pollingTimer: null,
   },
 
@@ -29,28 +31,16 @@ Page({
       });
       if (res.result.success) {
         const game = res.result.data;
+        const myOpenid = app.globalData.userInfo && app.globalData.userInfo.openid;
         this.setData({
           gameName: game.name,
-          gameCode: game.code,
-          players: game.players
+          gameCode: game.inviteCode,
+          players: game.players,
+          isHost: game.hostOpenid === myOpenid,
         });
       }
     } catch (err) {
       console.error(err);
-    }
-  },
-
-  async joinGame() {
-    try {
-      const res = await wx.cloud.callFunction({
-        name: 'joinGame',
-        data: { gameId: this.data.gameId }
-      });
-      if (res.result.success) {
-        this.loadGameInfo();
-      }
-    } catch (err) {
-      wx.showToast({ title: '加入失败', icon: 'error' });
     }
   },
 
@@ -64,6 +54,7 @@ Page({
   stopPolling() {
     if (this.data.pollingTimer) {
       clearInterval(this.data.pollingTimer);
+      this.setData({ pollingTimer: null });
     }
   },
 
@@ -84,5 +75,29 @@ Page({
         }
       }
     } catch (err) {}
-  }
+  },
+
+  async startGame() {
+    if (this.data.starting) return;
+    this.setData({ starting: true });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'startGame',
+        data: { gameId: this.data.gameId }
+      });
+      if (res.result.success) {
+        // 房主自己也跳转
+        this.stopPolling();
+        wx.redirectTo({
+          url: `/pages/scoring/scoring?gameId=${this.data.gameId}`
+        });
+      } else {
+        wx.showToast({ title: res.result.message || '开始失败', icon: 'none' });
+        this.setData({ starting: false });
+      }
+    } catch (err) {
+      wx.showToast({ title: '网络错误，请重试', icon: 'none' });
+      this.setData({ starting: false });
+    }
+  },
 });
