@@ -1,0 +1,7 @@
+{
+  "name": "resetAllScores",
+  "version": "1.0.0",
+  "description": "重置所有用户总积分",
+  "main": "index.js",
+  "dependencies": { "wx-server-sdk": "~2.6.3" }
+}
