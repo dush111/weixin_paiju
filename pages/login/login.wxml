@@ -53,10 +53,7 @@
       class="btn-wechat-login"
       bindtap="doWxLogin"
       wx:if="{{!isLoading}}"
-    >
-      <text class="wechat-icon">微信</text>
-      <text>微信一键登录</text>
-    </button>
+    >微信一键登录</button>
 
     <!-- 加载状态 -->
     <view class="loading-btn" wx:if="{{isLoading}}">

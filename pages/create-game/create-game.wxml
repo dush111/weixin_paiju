@@ -53,6 +53,13 @@
       </view>
     </view>
 
+    <!-- 口令展示 -->
+    <view class="code-display-box" bindtap="copyGameCode">
+      <text class="code-display-label">口令</text>
+      <text class="code-display-value">{{gameCode}}</text>
+      <text class="code-display-copy">点击复制</text>
+    </view>
+
     <!-- 邀请方式 -->
     <view class="invite-actions">
       <button class="btn-invite" open-type="share" bindtap="onInviteShare">

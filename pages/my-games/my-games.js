@@ -114,30 +114,31 @@ Page({
 
   async doDelete() {
     if (this.data.deleting) return;
+    const targetId = this.data.deleteTargetId;
     this.setData({ deleting: true });
     try {
       const res = await wx.cloud.callFunction({
         name: 'deleteGame',
-        data: { gameId: this.data.deleteTargetId }
+        data: { gameId: targetId }
       });
       if (res.result.success) {
+        wx.showToast({ title: '已删除', icon: 'success' });
         this.setData({
           showDeleteModal: false,
           deleteTargetId: '',
           deleteTargetName: '',
           deleting: false,
-          games: this.data.games.filter(g => g._id !== this.data.deleteTargetId),
+          page: 1,
+          games: [],
         });
-        wx.showToast({ title: '已删除', icon: 'success' });
-        // 重新拉一次以更新统计摘要
-        this.setData({ page: 1, games: [] });
         this.loadGames();
       } else {
         wx.showToast({ title: res.result.message || '删除失败', icon: 'none' });
         this.setData({ deleting: false });
       }
     } catch (err) {
-      wx.showToast({ title: '网络错误，请重试', icon: 'none' });
+      console.error('deleteGame error:', err);
+      wx.showToast({ title: '删除失败：' + (err.message || '请重试'), icon: 'none' });
       this.setData({ deleting: false });
     }
   },
