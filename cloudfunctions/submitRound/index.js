@@ -23,6 +23,12 @@ exports.main = async (event, context) => {
       return { success: false, message: '非牌局参与者' };
     }
 
+    // 幂等校验：同一局编号已存在则直接返回成功，防止并发重复提交
+    const alreadyExists = (game.rounds || []).some(r => r.roundNumber === roundNumber);
+    if (alreadyExists) {
+      return { success: true, duplicate: true, message: '该局已记录，请勿重复提交' };
+    }
+
     const newRound = {
       roundNumber,
       ranks, // [rank1_playerIndex, rank2_playerIndex, rank3_playerIndex, rank4_playerIndex]

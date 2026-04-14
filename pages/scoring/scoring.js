@@ -194,8 +194,9 @@ Page({
   },
 
   async submitRound() {
-    const { gameId, rankIndexes, rankSelections, previewAScore, previewBScore, scoreCase, currentRound } = this.data;
+    const { gameId, rankIndexes, previewAScore, previewBScore, scoreCase, currentRound } = this.data;
     if (!this.data.previewReady) return;
+    if (this._submitting) return; // 防止重复点击
 
     wx.showModal({
       title: '确认提交',
@@ -204,6 +205,8 @@ Page({
       confirmColor: '#e94560',
       success: async (res) => {
         if (res.confirm) {
+          if (this._submitting) return;
+          this._submitting = true;
           wx.showLoading({ title: '提交中...' });
           try {
             const result = await wx.cloud.callFunction({
@@ -219,7 +222,10 @@ Page({
             });
 
             if (result.result.success) {
-              wx.vibrateShort({ type: 'light' });
+              // duplicate 表示已被他人提交，直接刷新数据即可
+              if (!result.result.duplicate) {
+                wx.vibrateShort({ type: 'light' });
+              }
 
               // 重置选择
               this.setData({
@@ -231,16 +237,19 @@ Page({
               });
 
               // 检查是否游戏结束
-              if (result.result.data.gameOver) {
+              if (!result.result.duplicate && result.result.data && result.result.data.gameOver) {
                 this.showGameOver(result.result.data);
               } else {
                 this.loadGameData();
               }
+            } else {
+              wx.showToast({ title: result.result.message || '提交失败', icon: 'none' });
             }
           } catch (err) {
             wx.showToast({ title: '提交失败', icon: 'error' });
           } finally {
             wx.hideLoading();
+            this._submitting = false;
           }
         }
       }
