@@ -66,13 +66,19 @@
         <text class="game-date">{{item.formattedDate}}</text>
       </view>
 
-      <!-- 右侧：积分 -->
+      <!-- 右侧：积分 + 删除 -->
       <view class="game-score-col">
         <text class="game-score {{item.myScore >= 0 ? 'score-win' : 'score-lose'}}">
           {{item.myScore >= 0 ? '+' : ''}}{{item.myScore}}
         </text>
         <text class="game-score-label">积分</text>
         <text class="game-team">{{item.myTeam}}队</text>
+        <view
+          class="btn-delete"
+          catchtap="confirmDelete"
+          data-id="{{item._id}}"
+          data-name="{{item.name}}"
+        >删除</view>
       </view>
     </view>
 
@@ -81,4 +87,18 @@
       <text class="load-more-text">{{loadingMore ? '加载中...' : '加载更多'}}</text>
     </view>
   </scroll-view>
+</view>
+
+<!-- 删除确认弹窗 -->
+<view class="modal-mask" wx:if="{{showDeleteModal}}" bindtap="cancelDelete">
+  <view class="modal-box" catchtap="">
+    <text class="modal-title">确定删除牌局吗</text>
+    <text class="modal-sub">「{{deleteTargetName}}」删除后不可恢复</text>
+    <view class="modal-btns">
+      <view class="modal-btn modal-btn-cancel" bindtap="cancelDelete">取消</view>
+      <view class="modal-btn modal-btn-confirm {{deleting ? 'deleting' : ''}}" bindtap="doDelete">
+        {{deleting ? '删除中...' : '确定'}}
+      </view>
+    </view>
+  </view>
 </view>

@@ -16,6 +16,10 @@ Page({
     loadingMore: false,
     page: 1,
     pageSize: 20,
+    showDeleteModal: false,
+    deleteTargetId: '',
+    deleteTargetName: '',
+    deleting: false,
   },
 
   onShow() {
@@ -93,5 +97,48 @@ Page({
   goToDetail(e) {
     const { id } = e.currentTarget.dataset;
     wx.navigateTo({ url: `/pages/game-detail/game-detail?id=${id}` });
-  }
+  },
+
+  confirmDelete(e) {
+    const { id, name } = e.currentTarget.dataset;
+    this.setData({
+      showDeleteModal: true,
+      deleteTargetId: id,
+      deleteTargetName: name || '该牌局',
+    });
+  },
+
+  cancelDelete() {
+    this.setData({ showDeleteModal: false, deleteTargetId: '', deleteTargetName: '' });
+  },
+
+  async doDelete() {
+    if (this.data.deleting) return;
+    this.setData({ deleting: true });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'deleteGame',
+        data: { gameId: this.data.deleteTargetId }
+      });
+      if (res.result.success) {
+        this.setData({
+          showDeleteModal: false,
+          deleteTargetId: '',
+          deleteTargetName: '',
+          deleting: false,
+          games: this.data.games.filter(g => g._id !== this.data.deleteTargetId),
+        });
+        wx.showToast({ title: '已删除', icon: 'success' });
+        // 重新拉一次以更新统计摘要
+        this.setData({ page: 1, games: [] });
+        this.loadGames();
+      } else {
+        wx.showToast({ title: res.result.message || '删除失败', icon: 'none' });
+        this.setData({ deleting: false });
+      }
+    } catch (err) {
+      wx.showToast({ title: '网络错误，请重试', icon: 'none' });
+      this.setData({ deleting: false });
+    }
+  },
 });
