@@ -158,7 +158,7 @@
         </block>
         <block wx:else>
           <text class="profile-name">{{userInfo.nickname || '掼蛋玩家'}}</text>
-          <text class="profile-openid">ID: {{userInfo.openid && userInfo.openid.slice(-8)}}</text>
+          <!-- <text class="profile-openid">ID: {{userInfo.openid && userInfo.openid.slice(-8)}}</text> -->
         </block>
       </view>
 
