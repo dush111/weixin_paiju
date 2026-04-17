@@ -76,38 +76,62 @@
     <view class="players-section">
       <view class="players-header">
         <text class="players-title">玩家列表</text>
-        <text class="players-count">{{players.length}}/4</text>
+        <text class="players-count">{{filledPlayers.length}}/4</text>
       </view>
 
       <view class="players-grid">
         <view
-          class="player-slot {{index < players.length ? 'filled' : 'empty'}}"
-          wx:for="{{[0,1,2,3]}}"
-          wx:key="*this"
+          class="player-slot filled"
+          wx:for="{{filledPlayers}}"
+          wx:key="index"
         >
-          <view wx:if="{{index < players.length}}" class="player-item">
-            <image class="player-avatar" src="{{players[index].avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
-            <text class="player-name">{{players[index].nickname}}</text>
-            <view class="player-tag {{index === 0 ? 'host-tag' : 'joined-tag'}}">
-              {{index === 0 ? '房主' : '已加入'}}
+          <view class="player-item">
+            <image class="player-avatar {{item.isBot ? 'bot-avatar' : ''}}" src="{{item.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+            <text class="player-name">{{item.nickname}}</text>
+            <view class="player-tag {{index === 0 ? 'host-tag' : (item.isBot ? 'bot-tag' : 'joined-tag')}}">
+              {{index === 0 ? '房主' : (item.isBot ? '自动填入' : '已加入')}}
             </view>
+            <!-- 房主选择队友：非房主位置可点击标记为队友 -->
+            <view
+              wx:if="{{index !== 0}}"
+              class="teammate-btn {{teammateIndex === index ? 'teammate-selected' : ''}}"
+              bindtap="selectTeammate"
+              data-index="{{index}}"
+            >{{teammateIndex === index ? '✓ 我的队友' : '设为队友'}}</view>
           </view>
-          <view wx:else class="empty-slot">
-            <text class="empty-icon">＋</text>
-            <text class="empty-label">等待加入...</text>
-          </view>
+        </view>
+      </view>
+
+      <!-- 队伍预览 -->
+      <view class="team-preview" wx:if="{{teammateIndex >= 0}}">
+        <view class="team-preview-row">
+          <text class="team-preview-label team-a-label">A队（我方）</text>
+          <text class="team-preview-names">{{teamANames}}</text>
+        </view>
+        <view class="team-preview-row">
+          <text class="team-preview-label team-b-label">B队（对方）</text>
+          <text class="team-preview-names">{{teamBNames}}</text>
         </view>
       </view>
     </view>
 
+    <!-- 一键填满 -->
+    <button
+      class="btn-fill-bots"
+      wx:if="{{filledPlayers.length < 4}}"
+      bindtap="fillBots"
+    >一键填满（自动填入电脑玩家）</button>
+
     <!-- 开始按钮 -->
     <view class="start-section">
       <button
-        class="btn-primary start-btn {{players.length < 4 ? 'disabled' : ''}}"
-        disabled="{{players.length < 4}}"
+        class="btn-primary start-btn {{(filledPlayers.length < 4 || teammateIndex < 0) ? 'disabled' : ''}}"
+        disabled="{{filledPlayers.length < 4 || teammateIndex < 0}}"
         bindtap="startGame"
       >
-        {{players.length < 4 ? '等待玩家加入(' + players.length + '/4)' : '开始记分！'}}
+        <block wx:if="{{filledPlayers.length < 4}}">等待玩家加入({{filledPlayers.length}}/4)</block>
+        <block wx:elif="{{teammateIndex < 0}}">请选择你的队友</block>
+        <block wx:else>开始记分！</block>
       </button>
       <button class="btn-cancel" bindtap="cancelGame">取消牌局</button>
     </view>

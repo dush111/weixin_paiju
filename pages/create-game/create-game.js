@@ -1,6 +1,8 @@
 // pages/create-game/create-game.js
 const app = getApp();
 
+const BOT_NAMES = ['张三', '李四', '王五', '赵六', '陈七', '钱八', '周九', '吴十'];
+
 Page({
   data: {
     step: 1,
@@ -10,7 +12,11 @@ Page({
     gameId: null,
     gameCode: '',
     qrCodeUrl: '',
-    players: [],
+    players: [],       // 真实加入的玩家
+    filledPlayers: [], // 含机器人的4人展示列表
+    teammateIndex: -1, // 房主选择的队友在 filledPlayers 中的下标（1/2/3）
+    teamANames: '',
+    teamBNames: '',
     pollingTimer: null,
   },
 
@@ -19,6 +25,7 @@ Page({
     if (userInfo) {
       this.setData({
         players: [userInfo],
+        filledPlayers: [userInfo],
         gameName: `${userInfo.nickname}的牌局`
       });
     }
@@ -93,15 +100,68 @@ Page({
       });
       if (res.result.success) {
         const { players } = res.result.data;
-        this.setData({ players });
-        if (players.length === 4) {
-          // 全员到齐，震动提示
+        // 更新真实玩家列表，保留已有机器人位置
+        const { filledPlayers, teammateIndex } = this.data;
+        const newFilled = [...filledPlayers];
+        // 用真实玩家数据替换对应位置（保留机器人）
+        players.forEach((p, i) => { newFilled[i] = p; });
+        const updates = { players, filledPlayers: newFilled };
+        if (players.length === 4 && filledPlayers.length < 4) {
           wx.vibrateShort({ type: 'medium' });
         }
+        // 刷新队伍预览
+        if (teammateIndex >= 0) {
+          Object.assign(updates, this.calcTeamNames(newFilled, teammateIndex));
+        }
+        this.setData(updates);
       }
     } catch (err) {
       console.error('轮询失败:', err);
     }
+  },
+
+  // 一键填满：用随机机器人补足4人
+  fillBots() {
+    const { filledPlayers } = this.data;
+    if (filledPlayers.length >= 4) return;
+    const usedNames = filledPlayers.map(p => p.nickname);
+    const availNames = BOT_NAMES.filter(n => !usedNames.includes(n));
+    const newFilled = [...filledPlayers];
+    while (newFilled.length < 4) {
+      const name = availNames.splice(Math.floor(Math.random() * availNames.length), 1)[0] || `玩家${newFilled.length + 1}`;
+      newFilled.push({
+        openid: `bot_${Date.now()}_${newFilled.length}`,
+        nickname: name,
+        avatarUrl: '',
+        isBot: true,
+      });
+    }
+    this.setData({ filledPlayers: newFilled });
+  },
+
+  // 选择队友
+  selectTeammate(e) {
+    const idx = e.currentTarget.dataset.index;
+    const { filledPlayers, teammateIndex } = this.data;
+    const newIdx = teammateIndex === idx ? -1 : idx;
+    const updates = { teammateIndex: newIdx };
+    if (newIdx >= 0) {
+      Object.assign(updates, this.calcTeamNames(filledPlayers, newIdx));
+    } else {
+      updates.teamANames = '';
+      updates.teamBNames = '';
+    }
+    this.setData(updates);
+  },
+
+  // 计算队伍名称预览
+  calcTeamNames(filledPlayers, teammateIndex) {
+    // A队：0（房主）+ teammateIndex；B队：其余两人
+    const aNames = [filledPlayers[0], filledPlayers[teammateIndex]]
+      .filter(Boolean).map(p => p.nickname).join(' & ');
+    const bNames = [1, 2, 3].filter(i => i !== teammateIndex)
+      .map(i => filledPlayers[i]).filter(Boolean).map(p => p.nickname).join(' & ');
+    return { teamANames: aNames, teamBNames: bNames };
   },
 
   async copyGameCode() {
@@ -127,20 +187,31 @@ Page({
   },
 
   async startGame() {
-    if (this.data.players.length < 4) return;
+    const { filledPlayers, teammateIndex, gameId } = this.data;
+    if (filledPlayers.length < 4) return;
+    if (teammateIndex < 0) {
+      wx.showToast({ title: '请先选择你的队友', icon: 'none' });
+      return;
+    }
 
     wx.showLoading({ title: '开始中...' });
     try {
       const res = await wx.cloud.callFunction({
         name: 'startGame',
-        data: { gameId: this.data.gameId }
+        data: {
+          gameId,
+          filledPlayers,   // 含机器人的4人完整列表
+          teammateIndex,   // 房主的队友下标
+        }
       });
 
       if (res.result.success) {
         this.stopPolling();
         wx.redirectTo({
-          url: `/pages/scoring/scoring?gameId=${this.data.gameId}`
+          url: `/pages/scoring/scoring?gameId=${gameId}`
         });
+      } else {
+        wx.showToast({ title: res.result.message || '开始失败', icon: 'none' });
       }
     } catch (err) {
       console.error('开始游戏失败:', err);
