@@ -63,7 +63,13 @@ Page({
       });
 
       if (res.result.success) {
-        const { gameId, gameCode, qrCodeUrl } = res.result.data;
+        const { gameId, gameCode } = res.result.data;
+        // 调用云函数生成二维码
+        const qrRes = await wx.cloud.callFunction({
+          name: 'generateQRCode',
+          data: { text: gameCode }
+        });
+        const qrCodeUrl = qrRes.result.success ? qrRes.result.data : '';
         this.setData({
           step: 2,
           gameId,
