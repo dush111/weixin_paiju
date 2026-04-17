@@ -2,26 +2,38 @@
 <view class="container home-container">
   <!-- 顶部用户信息 -->
   <view class="header">
-    <view class="user-info">
-      <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <view class="user-info" bindtap="onAvatarTap">
+      <!-- 未登录：默认头像 + 点击登录提示 -->
+      <view class="avatar-wrap">
+        <image
+          class="avatar"
+          src="{{userInfo.avatarUrl || '/assets/default-avatar.png'}}"
+          mode="aspectFill"
+        ></image>
+        <view class="login-hint" wx:if="{{!isLoggedIn}}">
+          <text class="login-hint-text">点击登录</text>
+        </view>
+      </view>
       <view class="user-meta">
-        <text class="username">{{userInfo.nickname || '掼蛋玩家'}}</text>
-        <text class="user-level">{{rankText}}</text>
+        <text class="username">{{isLoggedIn ? (userInfo.nickname || '掼蛋玩家') : '游客'}}</text>
+        <text class="user-level">{{isLoggedIn ? rankText : '登录后查看数据'}}</text>
       </view>
     </view>
-    <view class="header-right">
+    <view class="header-right" wx:if="{{isLoggedIn}}">
       <view class="score-badge">
         <text class="score-label">总积分</text>
         <text class="score-value">{{totalScore}}</text>
       </view>
-      <view class="logout-btn" bindtap="logout">
-        <text class="logout-icon">⏏</text>
+    </view>
+    <view class="header-right" wx:else>
+      <view class="login-btn-small" bindtap="onAvatarTap">
+        <text class="login-btn-small-text">登录</text>
       </view>
     </view>
   </view>
 
-  <!-- 今日数据 -->
-  <view class="today-stats card">
+  <!-- 今日数据（已登录时显示） -->
+  <view class="today-stats card" wx:if="{{isLoggedIn}}">
     <view class="stats-title">
       <text class="stats-title-text">今日战绩</text>
       <text class="stats-date">{{todayDate}}</text>
@@ -44,8 +56,18 @@
     </view>
   </view>
 
-  <!-- 进行中 / 等待中的房间：有时置顶，放在菜单上方 -->
-  <view class="active-section" wx:if="{{activeGames.length > 0}}">
+  <!-- 未登录引导卡 -->
+  <view class="guest-card" wx:if="{{!isLoggedIn}}">
+    <text class="guest-icon">🎴</text>
+    <text class="guest-title">开始你的掼蛋之旅</text>
+    <text class="guest-desc">登录后可记录牌局、查看战绩、积分排名</text>
+    <view class="guest-login-btn" bindtap="onAvatarTap">
+      <text>微信登录</text>
+    </view>
+  </view>
+
+  <!-- 进行中 / 等待中的房间：有时置顶 -->
+  <view class="active-section" wx:if="{{isLoggedIn && activeGames.length > 0}}">
     <view class="section-header">
       <view class="section-title-wrap">
         <view class="active-dot"></view>
@@ -120,20 +142,10 @@
       <text class="menu-desc">数据统计分析</text>
       <view class="menu-arrow">›</view>
     </view>
-
-    <!-- 更改昵称 -->
-    <view class="menu-card" bindtap="goToNickname">
-      <view class="menu-icon-bg green-bg">
-        <text class="menu-icon">✏️</text>
-      </view>
-      <text class="menu-name">更改昵称</text>
-      <text class="menu-desc">修改显示名称</text>
-      <view class="menu-arrow">›</view>
-    </view>
   </view>
 
-  <!-- 最近牌局 -->
-  <view class="recent-section">
+  <!-- 最近牌局（已登录时显示） -->
+  <view class="recent-section" wx:if="{{isLoggedIn}}">
     <view class="section-header">
       <text class="section-title">最近牌局</text>
       <text class="section-more" bindtap="goToMyGames">查看全部 ›</text>
@@ -170,8 +182,8 @@
     </view>
   </view>
 
-  <!-- 进行中的房间为空时，放在最下方（最近牌局之后） -->
-  <view class="active-section active-section-bottom" wx:if="{{activeGames.length === 0}}">
+  <!-- 进行中的房间为空时底部提示（已登录时显示） -->
+  <view class="active-section active-section-bottom" wx:if="{{isLoggedIn && activeGames.length === 0}}">
     <view class="section-header">
       <view class="section-title-wrap">
         <view class="active-dot inactive-dot"></view>

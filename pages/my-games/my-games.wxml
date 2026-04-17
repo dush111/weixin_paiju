@@ -1,5 +1,18 @@
 <!-- pages/my-games/my-games.wxml -->
 <view class="container my-games-container">
+
+  <!-- 未登录提示 -->
+  <view class="not-login-wrap" wx:if="{{!isLoggedIn}}">
+    <text class="not-login-icon">🃏</text>
+    <text class="not-login-title">登录后查看我的牌局</text>
+    <text class="not-login-desc">登录以记录和查看你的所有牌局历史</text>
+    <navigator url="/pages/profile/profile" open-type="switchTab">
+      <view class="not-login-btn">去登录</view>
+    </navigator>
+  </view>
+
+  <!-- 已登录内容 -->
+  <block wx:else>
   <!-- 筛选栏 -->
   <view class="filter-bar">
     <view
@@ -88,6 +101,7 @@
       <text class="load-more-text">{{loadingMore ? '加载中...' : '加载更多'}}</text>
     </view>
   </scroll-view>
+  </block>
 </view>
 
 <!-- 删除确认弹窗 -->

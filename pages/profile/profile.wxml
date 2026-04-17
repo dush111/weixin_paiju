@@ -1,0 +1,244 @@
+<!-- pages/profile/profile.wxml -->
+<view class="container profile-container">
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  未登录 - Step 1: 微信登录                  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <block wx:if="{{!isLoggedIn && loginStep === 1}}">
+    <view class="login-panel">
+      <!-- Logo区 -->
+      <view class="login-logo">
+        <view class="logo-circle">
+          <text class="logo-emoji">🎴</text>
+        </view>
+        <text class="logo-title">转蛋计分</text>
+        <text class="logo-sub">登录后记录你的每一局精彩</text>
+      </view>
+
+      <!-- 功能介绍 -->
+      <view class="features-list">
+        <view class="feature-item">
+          <text class="feature-icon">📊</text>
+          <view class="feature-text">
+            <text class="feature-name">记录牌局</text>
+            <text class="feature-desc">实时记录每局得分与名次</text>
+          </view>
+        </view>
+        <view class="feature-item">
+          <text class="feature-icon">🏆</text>
+          <view class="feature-text">
+            <text class="feature-name">积分系统</text>
+            <text class="feature-desc">追踪个人积分与段位成长</text>
+          </view>
+        </view>
+        <view class="feature-item">
+          <text class="feature-icon">👥</text>
+          <view class="feature-text">
+            <text class="feature-name">多人对战</text>
+            <text class="feature-desc">邀请好友，支持4人联机</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 登录按钮 -->
+      <button
+        class="wx-login-btn {{!agreed ? 'btn-disabled' : ''}}"
+        bindtap="doWxLogin"
+        loading="{{isLoading}}"
+      >
+        <text class="wx-login-icon">微信</text>
+        <text>一键登录</text>
+      </button>
+
+      <!-- 协议 -->
+      <view class="agreement-row">
+        <view class="checkbox-wrap" bindtap="toggleAgreed">
+          <view class="checkbox {{agreed ? 'checked' : ''}}">
+            <text wx:if="{{agreed}}" class="check-icon">✓</text>
+          </view>
+        </view>
+        <text class="agreement-text">我已阅读并同意</text>
+        <text class="agreement-link" bindtap="showUserAgreement">《用户协议》</text>
+        <text class="agreement-text">和</text>
+        <text class="agreement-link" bindtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  未登录 - Step 2: 设置头像和昵称             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <block wx:if="{{!isLoggedIn && loginStep === 2}}">
+    <view class="setup-panel">
+      <view class="setup-header">
+        <text class="setup-title">完善个人信息</text>
+        <text class="setup-desc">设置你的头像和昵称，让队友认识你</text>
+      </view>
+
+      <!-- 头像选择 -->
+      <view class="avatar-edit-section">
+        <button class="avatar-picker-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image
+            class="avatar-preview"
+            src="{{tempAvatarUrl || '/assets/default-avatar.png'}}"
+            mode="aspectFill"
+          ></image>
+          <view class="avatar-edit-badge">
+            <text>更换</text>
+          </view>
+        </button>
+        <text class="avatar-tip">点击选择微信头像</text>
+      </view>
+
+      <!-- 昵称输入 -->
+      <view class="nickname-section">
+        <text class="input-label">昵称</text>
+        <input
+          class="nickname-input"
+          type="nickname"
+          value="{{tempNickname}}"
+          placeholder="点击使用微信昵称或自定义"
+          maxlength="12"
+          bindinput="onNicknameInput"
+          bindblur="onNicknameBlur"
+        />
+      </view>
+
+      <button
+        class="btn-confirm {{!tempNickname.trim() ? 'btn-disabled' : ''}}"
+        disabled="{{!tempNickname.trim() || isLoading}}"
+        loading="{{isLoading}}"
+        bindtap="confirmProfile"
+      >完成设置</button>
+    </view>
+  </block>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  已登录 - 个人中心                          -->
+  <!-- ═══════════════════════════════════════════ -->
+  <block wx:if="{{isLoggedIn}}">
+
+    <!-- 顶部用户信息卡 -->
+    <view class="profile-header">
+      <!-- 编辑模式头像（可更换） -->
+      <block wx:if="{{isEditing}}">
+        <button class="avatar-picker-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image
+            class="profile-avatar"
+            src="{{tempAvatarUrl || userInfo.avatarUrl || '/assets/default-avatar.png'}}"
+            mode="aspectFill"
+          ></image>
+          <view class="avatar-edit-badge">
+            <text>更换</text>
+          </view>
+        </button>
+      </block>
+      <!-- 非编辑模式头像 -->
+      <block wx:else>
+        <image
+          class="profile-avatar"
+          src="{{userInfo.avatarUrl || '/assets/default-avatar.png'}}"
+          mode="aspectFill"
+        ></image>
+      </block>
+
+      <!-- 昵称区 -->
+      <view class="profile-info">
+        <block wx:if="{{isEditing}}">
+          <input
+            class="nickname-edit-input"
+            type="nickname"
+            value="{{newNickname}}"
+            placeholder="输入新昵称（2-12字符）"
+            maxlength="12"
+            bindinput="onNewNicknameInput"
+            bindblur="onNewNicknameBlur"
+          />
+          <text class="input-count-hint">{{newNickname.length}}/12</text>
+        </block>
+        <block wx:else>
+          <text class="profile-name">{{userInfo.nickname || '掼蛋玩家'}}</text>
+          <text class="profile-openid">ID: {{userInfo.openid && userInfo.openid.slice(-8)}}</text>
+        </block>
+      </view>
+
+      <!-- 编辑 / 保存 按钮 -->
+      <view class="profile-action-btns" wx:if="{{!isEditing}}">
+        <view class="btn-edit" bindtap="startEdit">
+          <text>编辑资料</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 编辑模式操作栏 -->
+    <view class="edit-actions" wx:if="{{isEditing}}">
+      <button
+        class="btn-save {{!canSave ? 'btn-disabled' : ''}}"
+        disabled="{{!canSave || isLoading}}"
+        loading="{{isLoading}}"
+        bindtap="saveProfile"
+      >保存</button>
+      <button class="btn-cancel-edit" bindtap="cancelEdit">取消</button>
+    </view>
+
+    <!-- 功能列表 -->
+    <view class="menu-list" wx:if="{{!isEditing}}">
+      <view class="menu-item" bindtap="startEdit">
+        <view class="menu-item-left">
+          <text class="menu-item-icon">✏️</text>
+          <text class="menu-item-name">修改昵称/头像</text>
+        </view>
+        <text class="menu-item-arrow">›</text>
+      </view>
+
+      <view class="menu-divider"></view>
+
+      <view class="menu-item" bindtap="logout">
+        <view class="menu-item-left">
+          <text class="menu-item-icon">⏏️</text>
+          <text class="menu-item-name logout-text">退出登录</text>
+        </view>
+        <text class="menu-item-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 版本信息 -->
+    <view class="version-info" wx:if="{{!isEditing}}">
+      <text class="version-text">转蛋计分 v1.0.0</text>
+    </view>
+  </block>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  协议弹窗                                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <view class="modal-mask" wx:if="{{showAgreement}}" bindtap="closeAgreement">
+    <view class="modal-box" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">用户协议</text>
+        <view class="modal-close" bindtap="closeAgreement">✕</view>
+      </view>
+      <scroll-view class="modal-body" scroll-y>
+        <text class="modal-content">{{agreementText}}</text>
+      </scroll-view>
+      <view class="modal-footer">
+        <button class="btn-modal-confirm" bindtap="closeAgreement">我已阅读</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showPrivacy}}" bindtap="closePrivacy">
+    <view class="modal-box" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">隐私政策</text>
+        <view class="modal-close" bindtap="closePrivacy">✕</view>
+      </view>
+      <scroll-view class="modal-body" scroll-y>
+        <text class="modal-content">{{privacyText}}</text>
+      </scroll-view>
+      <view class="modal-footer">
+        <button class="btn-modal-confirm" bindtap="closePrivacy">我已阅读</button>
+      </view>
+    </view>
+  </view>
+
+</view>

@@ -6,18 +6,22 @@ const db = cloud.database();
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const { OPENID } = wxContext;
-  const { nickname } = event;
+  const { nickname, avatarUrl } = event;
 
   if (!nickname || nickname.trim().length < 2) {
     return { success: false, message: '昵称至少2个字符' };
   }
 
   try {
+    const updateData = {
+      nickname: nickname.trim(),
+      updatedAt: db.serverDate(),
+    };
+    if (avatarUrl) {
+      updateData.avatarUrl = avatarUrl;
+    }
     await db.collection('users').where({ openid: OPENID }).update({
-      data: {
-        nickname: nickname.trim(),
-        updatedAt: db.serverDate(),
-      }
+      data: updateData,
     });
     return { success: true };
   } catch (err) {

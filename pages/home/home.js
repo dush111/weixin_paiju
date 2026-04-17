@@ -4,47 +4,42 @@ const app = getApp();
 Page({
   data: {
     userInfo: null,
+    isLoggedIn: false,
     totalScore: 0,
     rankText: '新手牌手',
     todayDate: '',
     todayStats: { games: 0, score: 0, wins: 0 },
     recentGames: [],
-    activeGames: [],   // 进行中 / 等待中的房间
+    activeGames: [],
   },
 
   onLoad() {
-    this.initData();
+    this.initDate();
   },
 
   onShow() {
-    this.checkLogin();
-    this.loadData();
+    this.refreshUserState();
   },
 
-  checkLogin() {
-    const userInfo = app.getUserInfo();
-    if (!userInfo) {
-      wx.redirectTo({ url: '/pages/login/login' });
-      return;
-    }
+  initDate() {
     const today = new Date();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
     this.setData({
-      userInfo,
-      todayDate: `${month}月${day}日`
+      todayDate: `${today.getMonth() + 1}月${today.getDate()}日`
     });
   },
 
-  initData() {
+  refreshUserState() {
     const userInfo = app.getUserInfo();
-    if (userInfo) {
-      const today = new Date();
-      this.setData({
-        userInfo,
-        todayDate: `${today.getMonth()+1}月${today.getDate()}日`
-      });
+    const isLoggedIn = !!userInfo;
+    this.setData({ userInfo, isLoggedIn });
+    if (isLoggedIn) {
+      this.loadData();
     }
+  },
+
+  // 点击头像区域 → 未登录则跳转个人中心登录，已登录也跳个人中心
+  onAvatarTap() {
+    wx.switchTab({ url: '/pages/profile/profile' });
   },
 
   async loadData() {
@@ -68,7 +63,6 @@ Page({
     }
   },
 
-  // 格式化进行中的游戏
   formatActiveGame(game) {
     const names = (game.players || []).map(p => p.nickname).join('、');
     return {
@@ -103,21 +97,43 @@ Page({
     return '新手牌手';
   },
 
+  // 需要登录的操作统一检查
+  requireLogin(callback) {
+    if (!this.data.isLoggedIn) {
+      wx.showModal({
+        title: '需要登录',
+        content: '请先登录后再使用此功能',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.switchTab({ url: '/pages/profile/profile' });
+          }
+        }
+      });
+      return false;
+    }
+    if (callback) callback();
+    return true;
+  },
+
   createGame() {
-    wx.navigateTo({ url: '/pages/create-game/create-game' });
+    this.requireLogin(() => {
+      wx.navigateTo({ url: '/pages/create-game/create-game' });
+    });
   },
 
   joinGame() {
-    wx.navigateTo({ url: '/pages/join-game/join-game' });
+    this.requireLogin(() => {
+      wx.navigateTo({ url: '/pages/join-game/join-game' });
+    });
   },
 
-  // 点击进行中的房间，根据状态跳转不同页面
   resumeGame(e) {
+    if (!this.requireLogin()) return;
     const { id, status } = e.currentTarget.dataset;
     if (status === 'playing') {
       wx.navigateTo({ url: `/pages/scoring/scoring?gameId=${id}` });
     } else {
-      // waiting 状态 → 等待室
       wx.navigateTo({ url: `/pages/waiting-room/waiting-room?gameId=${id}` });
     }
   },
@@ -130,31 +146,9 @@ Page({
     wx.switchTab({ url: '/pages/annual-stats/annual-stats' });
   },
 
-  goToNickname() {
-    wx.navigateTo({ url: '/pages/nickname/nickname' });
-  },
-
   goToGameDetail(e) {
+    if (!this.requireLogin()) return;
     const { id } = e.currentTarget.dataset;
     wx.navigateTo({ url: `/pages/game-detail/game-detail?id=${id}` });
   },
-
-  logout() {
-    wx.showModal({
-      title: '退出登录',
-      content: '确定要退出登录吗？',
-      confirmText: '退出',
-      confirmColor: '#e94560',
-      success: (res) => {
-        if (res.confirm) {
-          // 清除本地用户信息
-          app.clearUserInfo();
-          wx.showToast({ title: '已退出登录', icon: 'success' });
-          setTimeout(() => {
-            wx.reLaunch({ url: '/pages/login/login' });
-          }, 800);
-        }
-      }
-    });
-  }
 });

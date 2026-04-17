@@ -10,10 +10,17 @@ Page({
   },
 
   onLoad(options) {
+    const userInfo = app.getUserInfo();
+    if (!userInfo) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      setTimeout(() => {
+        wx.switchTab({ url: '/pages/profile/profile' });
+      }, 800);
+      return;
+    }
     // 支持从扫码或分享链接带入邀请码
     if (options.code) {
       this.setData({ inviteCode: options.code });
-      // 如果邀请码完整，自动预览
       if (options.code.length === 6) {
         this.fetchGameInfo(options.code);
       }

@@ -3,6 +3,7 @@ const app = getApp();
 
 Page({
   data: {
+    isLoggedIn: false,
     filters: [
       { key: 'all', label: '全部' },
       { key: 'finished', label: '已结束' },
@@ -23,6 +24,13 @@ Page({
   },
 
   onShow() {
+    const userInfo = app.getUserInfo();
+    const isLoggedIn = !!userInfo;
+    this.setData({ isLoggedIn });
+    if (!userInfo) {
+      this.setData({ games: [], summary: { total: 0, wins: 0, totalScore: 0, winRate: 0 } });
+      return;
+    }
     this.setData({ page: 1, games: [] });
     this.loadGames();
   },

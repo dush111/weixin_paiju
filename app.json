@@ -1,14 +1,15 @@
 {
   "pages": [
-    "pages/login/login",
     "pages/home/home",
+    "pages/my-games/my-games",
+    "pages/annual-stats/annual-stats",
+    "pages/profile/profile",
+    "pages/login/login",
     "pages/create-game/create-game",
     "pages/join-game/join-game",
     "pages/waiting-room/waiting-room",
     "pages/scoring/scoring",
     "pages/game-detail/game-detail",
-    "pages/my-games/my-games",
-    "pages/annual-stats/annual-stats",
     "pages/nickname/nickname"
   ],
   "window": {
@@ -35,6 +36,10 @@
       {
         "pagePath": "pages/annual-stats/annual-stats",
         "text": "战绩"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
       }
     ]
   },

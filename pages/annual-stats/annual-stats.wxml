@@ -1,5 +1,17 @@
 <!-- pages/annual-stats/annual-stats.wxml -->
 <view class="container stats-container">
+
+  <!-- 未登录提示 -->
+  <view class="not-login-wrap" wx:if="{{!isLoggedIn}}">
+    <text class="not-login-icon">📊</text>
+    <text class="not-login-title">登录后查看年度战绩</text>
+    <text class="not-login-desc">登录以查看你的积分、胜率、月度趋势等数据</text>
+    <navigator url="/pages/profile/profile" open-type="switchTab">
+      <view class="not-login-btn">去登录</view>
+    </navigator>
+  </view>
+
+  <block wx:else>
   <!-- 年份选择器 -->
   <view class="year-selector">
     <view class="year-btn" bindtap="prevYear">‹</view>
@@ -114,4 +126,5 @@
     <text class="summary-emoji">{{yearlySummary.emoji}}</text>
     <text class="summary-text">{{yearlySummary.text}}</text>
   </view>
+  </block>
 </view>

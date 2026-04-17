@@ -3,6 +3,7 @@ const app = getApp();
 
 Page({
   data: {
+    isLoggedIn: false,
     selectedYear: new Date().getFullYear(),
     stats: {
       totalScore: 0,
@@ -25,6 +26,10 @@ Page({
   },
 
   onShow() {
+    const userInfo = app.getUserInfo();
+    const isLoggedIn = !!userInfo;
+    this.setData({ isLoggedIn });
+    if (!userInfo) return;
     this.loadStats();
   },
 

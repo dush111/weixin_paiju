@@ -22,13 +22,18 @@ Page({
 
   onLoad() {
     const userInfo = app.getUserInfo();
-    if (userInfo) {
-      this.setData({
-        players: [userInfo],
-        filledPlayers: [userInfo],
-        gameName: `${userInfo.nickname}的牌局`
-      });
+    if (!userInfo) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      setTimeout(() => {
+        wx.switchTab({ url: '/pages/profile/profile' });
+      }, 800);
+      return;
     }
+    this.setData({
+      players: [userInfo],
+      filledPlayers: [userInfo],
+      gameName: `${userInfo.nickname}的牌局`
+    });
   },
 
   onUnload() {
