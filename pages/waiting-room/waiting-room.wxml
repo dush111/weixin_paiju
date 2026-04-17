@@ -2,7 +2,13 @@
 <view class="container waiting-container">
   <view class="room-header">
     <text class="room-title">{{gameName}}</text>
-    <text class="room-code">口令: {{gameCode}}</text>
+    <view class="room-code-row">
+      <text class="room-code">口令: {{gameCode}}</text>
+      <view class="qr-btn" bindtap="showQrCode">
+        <text class="qr-btn-icon">⬛</text>
+        <text class="qr-btn-text">二维码</text>
+      </view>
+    </view>
   </view>
 
   <!-- 房间状态 -->
@@ -58,5 +64,21 @@
       </view>
       <text class="tip-text">等待房主开始游戏...</text>
     </view>
+  </view>
+</view>
+
+<!-- 二维码弹窗 -->
+<view class="qr-modal-mask" wx:if="{{showQrModal}}" bindtap="hideQrModal">
+  <view class="qr-modal-card" catchtap="noop">
+    <view class="qr-modal-title">扫码加入牌局</view>
+    <view class="qr-modal-subtitle">{{gameName}}</view>
+    <view class="qr-canvas-wrap">
+      <canvas canvas-id="qrcodeCanvas" class="qr-canvas"></canvas>
+    </view>
+    <view class="qr-code-label">
+      <text class="qr-code-text">邀请码: {{gameCode}}</text>
+    </view>
+    <view class="qr-hint">扫描二维码或输入邀请码加入</view>
+    <view class="qr-close-btn" bindtap="hideQrModal">关闭</view>
   </view>
 </view>

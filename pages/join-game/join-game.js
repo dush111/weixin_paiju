@@ -82,16 +82,29 @@ Page({
       onlyFromCamera: false,
       scanType: ['qrCode'],
       success: (res) => {
-        // 解析二维码中的邀请码
         const url = res.result;
-        const match = url.match(/code=([A-Z0-9]{6})/);
-        if (match) {
-          const code = match[1];
+        let code = null;
+
+        // 格式1：pages/join-game/join-game?code=XXXXXX（前端生成的新格式）
+        const pageMatch = url.match(/join-game\?.*code=([A-Z0-9]{6})/i);
+        if (pageMatch) {
+          code = pageMatch[1].toUpperCase();
+        }
+
+        // 格式2：?code=XXXXXX 或 &code=XXXXXX
+        if (!code) {
+          const paramMatch = url.match(/[?&]code=([A-Z0-9]{6})/i);
+          if (paramMatch) code = paramMatch[1].toUpperCase();
+        }
+
+        // 格式3：纯6位邀请码
+        if (!code && /^[A-Z0-9]{6}$/i.test(url.trim())) {
+          code = url.trim().toUpperCase();
+        }
+
+        if (code) {
           this.setData({ inviteCode: code });
           this.fetchGameInfo(code);
-        } else if (url.length === 6 && /^[A-Z0-9]{6}$/.test(url)) {
-          this.setData({ inviteCode: url });
-          this.fetchGameInfo(url);
         } else {
           wx.showToast({ title: '二维码无效', icon: 'none' });
         }

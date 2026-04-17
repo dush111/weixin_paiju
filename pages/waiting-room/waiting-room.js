@@ -1,5 +1,6 @@
 // pages/waiting-room/waiting-room.js
 const app = getApp();
+const drawQrcode = require('../../utils/weapp.qrcode.js');
 
 Page({
   data: {
@@ -10,6 +11,7 @@ Page({
     isHost: false,
     starting: false,
     pollingTimer: null,
+    showQrModal: false,
   },
 
   onLoad(options) {
@@ -18,6 +20,42 @@ Page({
     this.loadGameInfo();
     this.startPolling();
   },
+
+  // 显示二维码弹窗
+  showQrCode() {
+    this.setData({ showQrModal: true });
+    // 等待弹窗渲染完成再绘制
+    setTimeout(() => {
+      this.drawQrCode();
+    }, 300);
+  },
+
+  hideQrModal() {
+    this.setData({ showQrModal: false });
+  },
+
+  // 绘制二维码
+  drawQrCode() {
+    const { gameCode } = this.data;
+    if (!gameCode) return;
+    // 二维码内容：包含页面路径和邀请码，扫码后可直接跳转
+    const qrText = `pages/join-game/join-game?code=${gameCode}`;
+    drawQrcode({
+      text: qrText,
+      width: 260,
+      height: 260,
+      canvasId: 'qrcodeCanvas',
+      _this: this,
+      background: '#ffffff',
+      foreground: '#1a1a2e',
+      correctLevel: 'H',
+      callback: () => {
+        console.log('二维码绘制完成');
+      }
+    });
+  },
+
+  noop() {},
 
   onUnload() {
     this.stopPolling();
