@@ -105,8 +105,7 @@
       </view>
 
       <button
-        class="btn-confirm {{!tempNickname.trim() ? 'btn-disabled' : ''}}"
-        disabled="{{!tempNickname.trim() || isLoading}}"
+        class="btn-confirm "
         loading="{{isLoading}}"
         bindtap="confirmProfile"
       >完成设置</button>
