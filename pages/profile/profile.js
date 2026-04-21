@@ -351,4 +351,19 @@ Page({
       return '';
     }
   },
+
+  onShareAppMessage() {
+    const promise = new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          title: '转蛋积分'
+        })
+      }, 2000)
+    })
+    return {
+      title: '转蛋积分',
+      path: '/page/home/home.html',
+      promise
+    }
+  }
 });

@@ -91,5 +91,20 @@ Page({
     } else {
       return { emoji: '🃏', text: `掼蛋路上没有一蹴而就，下一年继续加油！` };
     }
+  },
+
+  onShareAppMessage() {
+    const promise = new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          title: '转蛋积分'
+        })
+      }, 2000)
+    })
+    return {
+      title: '转蛋积分',
+      path: '/page/home/home.html',
+      promise
+    }
   }
 });
