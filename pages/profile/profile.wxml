@@ -144,7 +144,10 @@
       <!-- 昵称区 -->
       <view class="profile-info">
         <block wx:if="{{isEditing}}">
-          <input
+
+          <view class="nickname-section-edit">
+        <text class="input-label">昵称</text>
+        <input
             class="nickname-edit-input"
             type="nickname"
             value="{{newNickname}}"
@@ -153,6 +156,8 @@
             bindinput="onNewNicknameInput"
             bindblur="onNewNicknameBlur"
           />
+      </view>
+          
           <text class="input-count-hint">{{newNickname.length}}/12</text>
         </block>
         <block wx:else>
