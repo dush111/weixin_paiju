@@ -55,23 +55,52 @@
   margin-bottom: 20rpx;
 }
 
-/* 得分表格 */
-.ss-table {
-  width: 100%;
-  overflow-x: auto;
+/* 得分表格：冻结左列布局 */
+.ss-table-wrap {
+  display: flex;
+  overflow: hidden;
 }
 
-.ss-table-row {
+/* 左侧固定列（玩家名 + 总分） */
+.ss-fixed-cols {
+  flex-shrink: 0;
+  z-index: 1;
+  /* 右侧阴影提示可滚动 */
+  box-shadow: 4rpx 0 12rpx rgba(0,0,0,0.35);
+}
+
+/* 右侧滚动区域 */
+.ss-scroll-cols {
+  flex: 1;
+  overflow: hidden;
+  /* 隐藏滚动条：小程序用 show-scrollbar="{{false}}" 属性，CSS 也加保险 */
+  scrollbar-width: none;
+}
+
+.ss-scroll-cols::-webkit-scrollbar {
+  display: none;
+}
+
+/* 通用行：固定列与滚动列高度必须一致 */
+.ss-trow {
   display: flex;
   align-items: center;
-  padding: 14rpx 0;
+  height: 80rpx;
   border-bottom: 1rpx solid rgba(255,255,255,0.05);
 }
 
-.ss-table-row:last-child { border-bottom: none; }
+.ss-trow:last-child {
+  border-bottom: none;
+}
 
-.ss-table-head {
+.ss-thead-row {
   border-bottom: 1rpx solid rgba(255,255,255,0.12);
+}
+
+/* 滚动列的行：不换行，横向排列 */
+.ss-scroll-row {
+  flex-wrap: nowrap;
+  padding: 0 16rpx;
 }
 
 .ss-th {
@@ -90,31 +119,25 @@
   width: 130rpx;
   flex-shrink: 0;
   font-weight: 600;
+  padding-left: 4rpx;
 }
 
 .ss-col-score {
-  width: 100rpx;
+  width: 96rpx;
   flex-shrink: 0;
   text-align: right;
-}
-
-.ss-col-rounds {
-  flex: 1;
-  display: flex;
-  gap: 16rpx;
-  padding-left: 20rpx;
-  overflow-x: auto;
+  padding-right: 16rpx;
 }
 
 .ss-total-score {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 800;
   color: #f5c518;
   text-align: right;
 }
 
 .ss-player-name {
-  font-size: 28rpx;
+  font-size: 26rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -125,7 +148,7 @@
   font-size: 22rpx;
   white-space: nowrap;
   flex-shrink: 0;
-  min-width: 80rpx;
+  width: 90rpx;
   text-align: center;
 }
 

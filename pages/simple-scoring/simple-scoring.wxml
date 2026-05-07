@@ -9,39 +9,59 @@
     </view>
   </view>
 
-  <!-- 得分汇总表格 -->
+  <!-- 得分汇总表格：左固定列 + 右横向滚动列 -->
   <view class="ss-table-card">
     <text class="ss-card-title">得分汇总</text>
-    <view class="ss-table">
-      <!-- 表头 -->
-      <view class="ss-table-row ss-table-head">
-        <text class="ss-th ss-col-name">玩家</text>
-        <text class="ss-th ss-col-score">总分</text>
-        <view class="ss-th ss-col-rounds">
+    <view class="ss-table-wrap">
+
+      <!-- 左侧固定列：玩家 + 总分 -->
+      <view class="ss-fixed-cols">
+        <!-- 表头行 -->
+        <view class="ss-trow ss-thead-row">
+          <text class="ss-th ss-col-name">玩家</text>
+          <text class="ss-th ss-col-score">总分</text>
+        </view>
+        <!-- 数据行 -->
+        <view
+          class="ss-trow"
+          wx:for="{{players}}"
+          wx:key="seatId"
+        >
+          <text class="ss-td ss-col-name ss-player-name">{{item.nickname}}</text>
+          <text class="ss-td ss-col-score ss-total-score">{{item.score || 0}}</text>
+        </view>
+      </view>
+
+      <!-- 右侧滚动列：每局详情 -->
+      <scroll-view
+        class="ss-scroll-cols"
+        scroll-x
+        show-scrollbar="{{false}}"
+      >
+        <!-- 表头行 -->
+        <view class="ss-trow ss-thead-row ss-scroll-row">
           <text
-            class="ss-round-col-label"
+            class="ss-round-col-label ss-round-cell"
             wx:for="{{rounds}}"
             wx:key="roundNumber"
           >第{{item.roundNumber}}局</text>
         </view>
-      </view>
-      <!-- 数据行：用 seatId 匹配每局得分，不依赖数组下标 -->
-      <view
-        class="ss-table-row"
-        wx:for="{{players}}"
-        wx:key="seatId"
-      >
-        <text class="ss-td ss-col-name ss-player-name">{{item.nickname}}</text>
-        <text class="ss-td ss-col-score ss-total-score">{{item.score || 0}}</text>
-        <view class="ss-td ss-col-rounds ss-round-cells">
+        <!-- 数据行 -->
+        <view
+          class="ss-trow ss-scroll-row"
+          wx:for="{{players}}"
+          wx:key="seatId"
+          wx:for-item="player"
+        >
           <text
-            class="ss-round-cell {{round.scorerSeatIds[0] === item.seatId || round.scorerSeatIds[1] === item.seatId ? 'ss-cell-win' : 'ss-cell-zero'}}"
+            class="ss-round-cell {{round.scorerSeatIds[0] === player.seatId || round.scorerSeatIds[1] === player.seatId ? 'ss-cell-win' : 'ss-cell-zero'}}"
             wx:for="{{rounds}}"
             wx:key="roundNumber"
             wx:for-item="round"
-          >{{round.scorerSeatIds[0] === item.seatId || round.scorerSeatIds[1] === item.seatId ? '+' + round.points : '—'}}</text>
+          >{{round.scorerSeatIds[0] === player.seatId || round.scorerSeatIds[1] === player.seatId ? '+' + round.points : '—'}}</text>
         </view>
-      </view>
+      </scroll-view>
+
     </view>
   </view>
 
