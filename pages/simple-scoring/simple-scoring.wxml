@@ -53,18 +53,18 @@
     <text class="ss-section-label">选择2位得分者（点击已选可取消）</text>
     <view class="ss-scorer-grid">
       <view
-        class="ss-scorer-item {{selectedScorers.indexOf(item.seatId) !== -1 ? 'ss-scorer-selected' : ''}}"
+        class="ss-scorer-item {{selectedScorers[0] == item.seatId || selectedScorers[1] == item.seatId ? 'ss-scorer-selected' : ''}}"
         wx:for="{{players}}"
         wx:key="seatId"
         bindtap="toggleScorer"
         data-pi="{{item.seatId}}"
       >
         <!-- 选中角标 -->
-        <view class="ss-scorer-badge" wx:if="{{selectedScorers.indexOf(item.seatId) !== -1}}">
+        <view class="ss-scorer-badge" wx:if="{{selectedScorers[0] == item.seatId || selectedScorers[1] == item.seatId}}">
           <text class="ss-scorer-badge-text">✓</text>
         </view>
         <!-- 头像占位圆 -->
-        <view class="ss-scorer-avatar {{selectedScorers.indexOf(item.seatId) !== -1 ? 'ss-scorer-avatar-selected' : ''}}">
+        <view class="ss-scorer-avatar {{selectedScorers[0] == item.seatId || selectedScorers[1] == item.seatId ? 'ss-scorer-avatar-selected' : ''}}">
           <text class="ss-scorer-avatar-text">{{item.nickname.substring(0,1)}}</text>
         </view>
         <text class="ss-scorer-name">{{item.nickname}}</text>
