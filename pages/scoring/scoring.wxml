@@ -49,18 +49,7 @@
     <text class="input-hint">选择本局与你同队的玩家</text>
 
     <view class="partner-grid">
-      <view
-        wx:for="{{players}}"
-        wx:key="openid"
-        wx:for-item="player"
-        wx:for-index="pi"
-        class="partner-item
-          {{pi === myIndex ? 'partner-me' : ''}}
-          {{pi === partnerIndex ? 'partner-selected' : ''}}
-          {{pi !== myIndex && pi !== partnerIndex && partnerIndex !== -1 ? 'partner-enemy' : ''}}"
-        bindtap="onPickPartner"
-        data-pi="{{pi}}"
-      >
+      <view wx:for="{{players}}" wx:key="openid" wx:for-item="player" wx:for-index="pi" class="partner-item {{pi === myIndex ? 'partner-me' : ''}} {{pi === partnerIndex ? 'partner-selected' : ''}} {{pi !== myIndex && pi !== partnerIndex && partnerIndex !== -1 ? 'partner-enemy' : ''}}" bindtap="onPickPartner" data-pi="{{pi}}">
         <image class="partner-avatar" src="{{player.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
         <text class="partner-name">{{player.nickname}}</text>
         <text class="partner-tag" wx:if="{{pi === myIndex}}">我</text>
@@ -141,9 +130,7 @@
             wx:key="openid"
             wx:for-item="player"
             wx:for-index="pi"
-            class="avatar-pick-item
-              {{rankIndexes[block.rank] === pi ? 'selected' : ''}}
-              {{rankIndexes[block.rank] !== pi && usedIndexes[pi] ? 'disabled' : ''}}"
+            class="avatar-pick-item {{rankIndexes[block.rank] === pi ? 'selected' : ''}} {{rankIndexes[block.rank] !== pi && usedIndexes[pi] ? 'disabled' : ''}}"
             bindtap="onPickAvatar"
             data-rank="{{block.rank}}"
             data-pi="{{pi}}"
