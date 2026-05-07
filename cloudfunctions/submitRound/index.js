@@ -1,5 +1,5 @@
 // 云函数：submitRound
-// 功能：提交单局积分（核心逻辑）
+// 功能：提交单局积分（个人积分制，每局队友可变）
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -8,7 +8,8 @@ const _ = db.command;
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const { OPENID } = wxContext;
-  const { gameId, roundNumber, ranks, scoreA, scoreB, caseText } = event;
+  // teamA/teamB: 本局队伍的 player 下标数组，如 [0,2] [1,3]
+  const { gameId, roundNumber, ranks, teamA, teamB, caseText } = event;
 
   try {
     const { data: game } = await db.collection('games').doc(gameId).get();
@@ -17,52 +18,70 @@ exports.main = async (event, context) => {
       return { success: false, message: '牌局未在进行中' };
     }
 
-    // 只有房主或指定玩家可记分（此处允许所有参与者记分）
     const isPlayer = game.players.some(p => p.openid === OPENID);
     if (!isPlayer) {
       return { success: false, message: '非牌局参与者' };
     }
 
-    // 幂等校验：同一局编号已存在则直接返回成功，防止并发重复提交
+    // 幂等校验
     const alreadyExists = (game.rounds || []).some(r => r.roundNumber === roundNumber);
     if (alreadyExists) {
       return { success: true, duplicate: true, message: '该局已记录，请勿重复提交' };
     }
 
+    // 根据名次和队伍分组计算本局每人得分
+    // 规则：一二同队→300，一三同队→200，一四同队→100；胜队每人平分
+    const teamASet = new Set(teamA);
+    const teamBSet = new Set(teamB);
+
+    const rank1 = ranks[0];
+    const rank2 = ranks[1];
+    const rank4 = ranks[3];
+
+    const isSameTeam = (a, b) =>
+      (teamASet.has(a) && teamASet.has(b)) || (teamBSet.has(a) && teamBSet.has(b));
+
+    let totalScore = 0;
+    if (isSameTeam(rank1, rank2)) {
+      totalScore = 300;
+    } else if (!isSameTeam(rank1, rank4)) {
+      totalScore = 200;
+    } else {
+      totalScore = 100;
+    }
+
+    const perPersonScore = totalScore / 2;
+    const firstTeamIsA = teamASet.has(rank1);
+    const winTeam = firstTeamIsA ? teamASet : teamBSet;
+
+    // 计算每位玩家本局 delta
+    const playerDeltas = game.players.map((_, i) => winTeam.has(i) ? perPersonScore : 0);
+    const playerDeltaNames = game.players.map(p => p.nickname);
+
+    // 更新玩家积分
+    const updatedPlayers = game.players.map((p, i) => ({
+      ...p,
+      score: (p.score || 0) + playerDeltas[i],
+    }));
+
     const newRound = {
       roundNumber,
-      ranks, // [rank1_playerIndex, rank2_playerIndex, rank3_playerIndex, rank4_playerIndex]
-      scoreA,
-      scoreB,
+      ranks,
+      teamA,
+      teamB,
       caseText,
+      playerDeltas,
+      playerDeltaNames,
       recordedBy: OPENID,
       createdAt: new Date(),
     };
 
-    const newTeamAScore = game.teamAScore + scoreA;
-    const newTeamBScore = game.teamBScore + scoreB;
     const newCurrentRound = roundNumber + 1;
     const gameOver = roundNumber >= game.targetRounds;
-
-    // 名次对应本局积分：第1名30、第2名15、第3名5、第4名1
-    const RANK_SCORES = [30, 15, 5, 1];
-
-    // 同步更新每位玩家的个人积分
-    const updatedPlayers = game.players.map((p, idx) => {
-      const rankPos = ranks.indexOf(idx); // 0=第一名，1=第二名...
-      const playerScore = RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
-      return {
-        ...p,
-        score: (p.score || 0) + playerScore,
-        lastRank: rankPos + 1,
-      };
-    });
 
     await db.collection('games').doc(gameId).update({
       data: {
         rounds: _.push(newRound),
-        teamAScore: newTeamAScore,
-        teamBScore: newTeamBScore,
         currentRound: gameOver ? roundNumber : newCurrentRound,
         status: gameOver ? 'finished' : 'playing',
         players: updatedPlayers,
@@ -71,18 +90,19 @@ exports.main = async (event, context) => {
       }
     });
 
-    // 如果游戏结束，更新所有玩家的统计数据
+    // 游戏结束后更新用户统计
     if (gameOver) {
-      await updatePlayerStats(game, newTeamAScore, newTeamBScore, updatedPlayers, ranks);
+      await updatePlayerStats(updatedPlayers);
     }
+
+    // 找出个人冠军（积分最高）
+    const topPlayer = updatedPlayers.reduce((a, b) => (a.score || 0) >= (b.score || 0) ? a : b);
 
     return {
       success: true,
       data: {
         gameOver,
-        winner: gameOver ? (newTeamAScore >= newTeamBScore ? 'A' : 'B') : null,
-        finalScoreA: newTeamAScore,
-        finalScoreB: newTeamBScore,
+        topPlayer: topPlayer.nickname,
       }
     };
   } catch (err) {
@@ -91,24 +111,19 @@ exports.main = async (event, context) => {
   }
 };
 
-// 游戏结束后更新玩家统计
-// ranks: [rank1_playerIdx, rank2_playerIdx, ...] 按名次排列
-async function updatePlayerStats(game, finalA, finalB, updatedPlayers, ranks) {
-  const RANK_SCORES = [30, 15, 5, 1];
-  const winningTeam = finalA >= finalB ? 'A' : 'B';
+async function updatePlayerStats(updatedPlayers) {
+  // 按积分排序找冠军
+  const sorted = [...updatedPlayers].sort((a, b) => (b.score || 0) - (a.score || 0));
+  const winnerOpenid = sorted[0].openid;
 
-  const updates = updatedPlayers.map(async (player, idx) => {
-    const rankPos = ranks.indexOf(idx);
-    const rankScore = RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
-    const isWinner = player.team === winningTeam;
-    await db.collection('users').where({ openid: player.openid }).update({
+  const updates = updatedPlayers.map(player =>
+    db.collection('users').where({ openid: player.openid }).update({
       data: {
         totalGames: db.command.inc(1),
-        wins: db.command.inc(isWinner ? 1 : 0),
+        wins: db.command.inc(player.openid === winnerOpenid ? 1 : 0),
         updatedAt: db.serverDate(),
       }
-    });
-  });
-
+    })
+  );
   await Promise.all(updates);
 }

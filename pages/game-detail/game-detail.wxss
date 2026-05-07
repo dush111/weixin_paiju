@@ -34,64 +34,90 @@
 .status-playing { background: rgba(245,197,24,0.15); color: #f5c518; }
 .status-cancelled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
 
-/* 最终比分 */
-.final-score-card {
-  display: flex;
-  align-items: center;
+/* 冠军卡 */
+.champion-card {
   margin: 0 24rpx 24rpx;
-  background: rgba(255,255,255,0.05);
-  border-radius: 20rpx;
-  border: 1rpx solid rgba(255,255,255,0.09);
-  overflow: hidden;
-}
-
-.team-final {
-  flex: 1;
-  padding: 36rpx 20rpx;
+  background: linear-gradient(135deg, rgba(245,197,24,0.15), rgba(233,69,96,0.10));
+  border: 1rpx solid rgba(245,197,24,0.35);
+  border-radius: 24rpx;
+  padding: 40rpx 24rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rpx;
-  position: relative;
+  gap: 10rpx;
 }
 
-.team-final.winner {
-  background: linear-gradient(135deg, rgba(245,197,24,0.15), rgba(233,69,96,0.1));
+.champion-crown {
+  font-size: 56rpx;
+  line-height: 1;
 }
 
-.team-final.loser {
-  opacity: 0.6;
+.champion-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid #f5c518;
 }
 
-.tf-label {
-  font-size: 24rpx;
-  color: rgba(255,255,255,0.5);
-}
-
-.tf-score {
-  font-size: 80rpx;
-  font-weight: 900;
+.champion-name {
+  font-size: 36rpx;
+  font-weight: 800;
   color: #ffffff;
 }
 
-.tf-crown {
+.champion-score {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #f5c518;
+}
+
+.champion-label {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.4);
+}
+
+/* 个人排行 */
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 8rpx;
+  border-radius: 14rpx;
+  border: 1rpx solid rgba(255,255,255,0.06);
+}
+
+.rank-row.rank-1st { background: rgba(245,197,24,0.10); border-color: rgba(245,197,24,0.3); }
+.rank-row.rank-2nd { background: rgba(192,192,192,0.07); border-color: rgba(192,192,192,0.25); }
+.rank-row.rank-3rd { background: rgba(205,127,50,0.07); border-color: rgba(205,127,50,0.25); }
+
+.rank-icon {
+  font-size: 32rpx;
+  width: 48rpx;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rank-player-name {
+  flex: 1;
   font-size: 28rpx;
-  position: absolute;
-  top: 12rpx;
-  right: 20rpx;
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.final-vs {
-  padding: 0 16rpx;
-  border-left: 1rpx solid rgba(255,255,255,0.08);
-  border-right: 1rpx solid rgba(255,255,255,0.08);
-}
-
-.fv-text {
-  font-size: 20rpx;
-  color: rgba(255,255,255,0.3);
-  writing-mode: vertical-rl;
-  letter-spacing: 4rpx;
+.rank-player-score {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #f5c518;
+  flex-shrink: 0;
 }
 
 /* 玩家详情 */
@@ -204,10 +230,16 @@
 
 .round-row {
   display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid rgba(255,255,255,0.05);
+}
+
+.round-row-top {
+  display: flex;
   align-items: center;
   gap: 16rpx;
-  padding: 10rpx 0;
-  border-bottom: 1rpx solid rgba(255,255,255,0.05);
 }
 
 .rr-num {
@@ -223,9 +255,15 @@
   color: rgba(255,255,255,0.5);
 }
 
-.rr-a, .rr-b {
-  font-size: 24rpx;
-  font-weight: 700;
+.rr-deltas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  width: 100%;
+  margin-top: 8rpx;
 }
 
-.rr-sep { color: rgba(255,255,255,0.15); font-size: 20rpx; }
+.rr-delta {
+  font-size: 22rpx;
+  font-weight: 600;
+}

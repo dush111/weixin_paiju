@@ -1,5 +1,6 @@
 <!-- pages/scoring/scoring.wxml -->
 <view class="container scoring-container">
+
   <!-- 顶部状态栏 -->
   <view class="top-bar">
     <view class="game-info">
@@ -9,7 +10,6 @@
     <view class="progress-bar">
       <view class="progress-fill" style="width: {{progressPct}}%"></view>
     </view>
-    <!-- 级牌 -->
     <view class="settings-row">
       <picker wx:if="{{isHost}}" mode="selector" range="{{levelOptions}}" bindchange="changeLevel">
         <view class="setting-chip setting-chip-host">
@@ -25,49 +25,111 @@
     </view>
   </view>
 
-  <!-- 队伍积分总览 -->
-  <view class="teams-overview">
-    <view class="team-card team-a {{teamAWinning ? 'team-leading' : ''}}">
-      <text class="team-label">A队</text>
-      <text class="team-score">{{teamAScore}}</text>
-      <view class="team-players">
-        <text class="team-player-name">{{players[0] ? players[0].nickname : '玩家1'}}</text>
-        <text class="team-player-sep"> & </text>
-        <text class="team-player-name">{{players[2] ? players[2].nickname : '玩家3'}}</text>
+  <!-- 个人积分排行榜 -->
+  <view class="leaderboard-section">
+    <text class="lb-title">积分排行</text>
+    <view class="lb-list">
+      <view
+        class="lb-item {{index === 0 ? 'lb-first' : index === 1 ? 'lb-second' : index === 2 ? 'lb-third' : ''}}"
+        wx:for="{{players}}"
+        wx:key="openid"
+        wx:for-item="player"
+      >
+        <text class="lb-rank-icon">{{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}}</text>
+        <image class="lb-avatar" src="{{player.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <text class="lb-name">{{player.nickname}}</text>
+        <text class="lb-score">{{player.score || 0}}</text>
       </view>
-      <view class="win-crown" wx:if="{{teamAWinning}}">👑</view>
-    </view>
-
-    <view class="vs-divider">
-      <text class="vs-text">VS</text>
-    </view>
-
-    <view class="team-card team-b {{!teamAWinning && teamBScore > 0 ? 'team-leading' : ''}}">
-      <text class="team-label">B队</text>
-      <text class="team-score">{{teamBScore}}</text>
-      <view class="team-players">
-        <text class="team-player-name">{{players[1] ? players[1].nickname : '玩家2'}}</text>
-        <text class="team-player-sep"> & </text>
-        <text class="team-player-name">{{players[3] ? players[3].nickname : '玩家4'}}</text>
-      </view>
-      <view class="win-crown" wx:if="{{!teamAWinning && teamBScore > 0 && teamBScore >= teamAScore}}">👑</view>
     </view>
   </view>
 
-  <!-- 记录本局结果 -->
-  <view class="score-input-section">
+  <!-- ======== STEP 1: 选本局队友 ======== -->
+  <view class="score-input-section" wx:if="{{step === 'pick-partner'}}">
     <view class="section-title-row">
-      <text class="section-title">记录第 {{currentRound}} 局</text>
-      <text class="score-rule-btn" bindtap="showRules">积分规则 ?</text>
+      <text class="section-title">第 {{currentRound}} 局 · 选择队友</text>
+      <text class="score-rule-btn" bindtap="showRules">规则 ?</text>
+    </view>
+    <text class="input-hint">选择本局与你同队的玩家</text>
+
+    <view class="partner-grid">
+      <view
+        wx:for="{{players}}"
+        wx:key="openid"
+        wx:for-item="player"
+        wx:for-index="pi"
+        class="partner-item
+          {{pi === myIndex ? 'partner-me' : ''}}
+          {{pi === partnerIndex ? 'partner-selected' : ''}}
+          {{pi !== myIndex && pi !== partnerIndex && partnerIndex !== -1 ? 'partner-enemy' : ''}}"
+        bindtap="onPickPartner"
+        data-pi="{{pi}}"
+      >
+        <image class="partner-avatar" src="{{player.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <text class="partner-name">{{player.nickname}}</text>
+        <text class="partner-tag" wx:if="{{pi === myIndex}}">我</text>
+        <text class="partner-tag partner-tag-ally" wx:elif="{{pi === partnerIndex}}">队友</text>
+        <text class="partner-tag partner-tag-enemy" wx:elif="{{partnerIndex !== -1}}">对手</text>
+      </view>
     </view>
 
-    <!-- 选择本局名次 -->
+    <!-- 本局队伍预览 -->
+    <view class="team-preview" wx:if="{{partnerIndex !== -1}}">
+      <view class="team-preview-col team-col-a">
+        <text class="team-preview-label">我方队</text>
+        <view class="team-preview-names">
+          <text>{{players[teamA[0]] ? players[teamA[0]].nickname : ''}}</text>
+          <text class="team-amp"> &amp; </text>
+          <text>{{players[teamA[1]] ? players[teamA[1]].nickname : ''}}</text>
+        </view>
+      </view>
+      <text class="team-preview-vs">VS</text>
+      <view class="team-preview-col team-col-b">
+        <text class="team-preview-label">对方队</text>
+        <view class="team-preview-names">
+          <text>{{players[teamB[0]] ? players[teamB[0]].nickname : ''}}</text>
+          <text class="team-amp"> &amp; </text>
+          <text>{{players[teamB[1]] ? players[teamB[1]].nickname : ''}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-btn-row">
+      <button
+        class="btn-confirm-sel {{partnerIndex === -1 ? 'btn-sel-disabled' : ''}}"
+        disabled="{{partnerIndex === -1}}"
+        bindtap="confirmPartner"
+      >下一步：填写名次</button>
+    </view>
+  </view>
+
+  <!-- ======== STEP 2: 选名次 ======== -->
+  <view class="score-input-section" wx:if="{{step === 'pick-rank'}}">
+    <view class="section-title-row">
+      <view class="back-btn" bindtap="backToPickPartner">
+        <text class="back-icon">‹</text>
+        <text class="back-text">重选队友</text>
+      </view>
+      <text class="section-title">第 {{currentRound}} 局 · 填写名次</text>
+    </view>
+
+    <!-- 本局队伍提示 -->
+    <view class="round-team-tip">
+      <view class="rtt-team">
+        <text class="rtt-label rtt-a">我方</text>
+        <text class="rtt-names">{{players[teamA[0]].nickname}} &amp; {{players[teamA[1]].nickname}}</text>
+      </view>
+      <text class="rtt-vs">VS</text>
+      <view class="rtt-team">
+        <text class="rtt-label rtt-b">对方</text>
+        <text class="rtt-names">{{players[teamB[0]].nickname}} &amp; {{players[teamB[1]].nickname}}</text>
+      </view>
+    </view>
+
     <text class="input-hint">点击头像为每个名次选择玩家</text>
 
-    <!-- 名次选择：头像点选 -->
+    <!-- 名次选择块 -->
     <view class="rank-selector">
       <view class="rank-block" wx:for="{{rankBlocks}}" wx:key="rank" wx:for-item="block">
-        <!-- 名次标题 -->
         <view class="rank-block-header">
           <text class="rank-block-icon">{{block.icon}}</text>
           <text class="rank-block-label">{{block.label}}</text>
@@ -76,23 +138,20 @@
           </text>
           <text class="rank-block-unselected" wx:else>未选择</text>
         </view>
-        <!-- 四个头像 -->
         <view class="avatar-pick-row">
           <view
             wx:for="{{players}}"
             wx:key="openid"
             wx:for-item="player"
             wx:for-index="pi"
-            class="avatar-pick-item {{rankIndexes[block.rank] === pi ? 'selected' : ''}} {{rankIndexes[block.rank] !== pi && usedIndexes[pi] ? 'disabled' : ''}}"
+            class="avatar-pick-item
+              {{rankIndexes[block.rank] === pi ? 'selected' : ''}}
+              {{rankIndexes[block.rank] !== pi && usedIndexes[pi] ? 'disabled' : ''}}"
             bindtap="onPickAvatar"
             data-rank="{{block.rank}}"
             data-pi="{{pi}}"
           >
-            <image
-              class="pick-avatar"
-              src="{{player.avatarUrl || '/assets/images/default-avatar.png'}}"
-              mode="aspectFill"
-            />
+            <image class="pick-avatar" src="{{player.avatarUrl || '/assets/images/default-avatar.png'}}" mode="aspectFill"/>
             <text class="pick-name">{{player.nickname}}</text>
           </view>
         </view>
@@ -101,26 +160,18 @@
 
     <!-- 积分预览 -->
     <view class="score-preview" wx:if="{{previewReady}}">
-      <text class="preview-title">本局积分预览</text>
-      <view class="preview-teams">
-        <view class="preview-team">
-          <text class="preview-team-name">A队</text>
-          <text class="preview-score {{previewAScore > 0 ? 'pos' : 'zero'}}">
-            {{previewAScore > 0 ? '+' : ''}}{{previewAScore}}
-          </text>
-        </view>
-        <view class="preview-vs">VS</view>
-        <view class="preview-team">
-          <text class="preview-team-name">B队</text>
-          <text class="preview-score {{previewBScore > 0 ? 'pos' : 'zero'}}">
-            {{previewBScore > 0 ? '+' : ''}}{{previewBScore}}
+      <text class="preview-title">本局积分预览 · {{scoreCase}}</text>
+      <view class="preview-person-list">
+        <view class="preview-person" wx:for="{{previewScores}}" wx:key="nickname">
+          <text class="pp-name">{{item.nickname}}</text>
+          <text class="pp-score {{item.delta > 0 ? 'pos' : 'zero'}}">
+            {{item.delta > 0 ? '+' + item.delta : '0'}}
           </text>
         </view>
       </view>
-      <text class="preview-case">{{scoreCase}}</text>
     </view>
 
-    <!-- 操作按钮组 -->
+    <!-- 操作按钮 -->
     <view class="action-btn-row">
       <button
         class="btn-cancel-sel {{selectedCount === 0 ? 'btn-sel-disabled' : ''}}"
@@ -131,7 +182,7 @@
         class="btn-confirm-sel {{!previewReady ? 'btn-sel-disabled' : ''}}"
         disabled="{{!previewReady}}"
         bindtap="submitRound"
-      >确认选择</button>
+      >确认提交</button>
     </view>
   </view>
 
@@ -141,19 +192,25 @@
     <view class="history-list">
       <view class="history-item" wx:for="{{rounds}}" wx:key="roundNumber">
         <text class="h-round">第{{item.roundNumber}}局</text>
-        <view class="h-case">{{item.caseText}}</view>
-        <view class="h-scores">
-          <text class="h-score-a {{item.scoreA > 0 ? 'pos' : 'zero'}}">A: {{item.scoreA > 0 ? '+' : ''}}{{item.scoreA}}</text>
-          <text class="h-score-b {{item.scoreB > 0 ? 'pos' : 'zero'}}">B: {{item.scoreB > 0 ? '+' : ''}}{{item.scoreB}}</text>
+        <text class="h-case">{{item.caseText}}</text>
+        <view class="h-deltas">
+          <text
+            class="h-delta {{delta > 0 ? 'pos' : 'zero'}}"
+            wx:for="{{item.playerDeltas}}"
+            wx:key="nickname"
+            wx:for-item="delta"
+            wx:for-index="di"
+          >{{item.playerDeltaNames[di]}}: {{delta > 0 ? '+' + delta : '0'}}</text>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 结束牌局按钮 -->
+  <!-- 结束牌局 -->
   <view class="end-game-row">
     <button class="btn-end-game" bindtap="confirmEndGame">结束牌局</button>
   </view>
+
 </view>
 
 <!-- 积分规则弹窗 -->
@@ -163,23 +220,23 @@
     <view class="rule-list">
       <view class="rule-item">
         <view class="rule-case case-300">300分局</view>
-        <text class="rule-desc">第一、二名同队（一二名均在同队）</text>
-        <text class="rule-formula">获胜队 +300，失败队 +0</text>
+        <text class="rule-desc">第一、二名同队</text>
+        <text class="rule-formula">胜队每人 +150，败队 +0</text>
       </view>
       <view class="rule-divider"></view>
       <view class="rule-item">
         <view class="rule-case case-200">200分局</view>
-        <text class="rule-desc">第一、三名同队（一三名均在同队）</text>
-        <text class="rule-formula">获胜队 +200，失败队 +0</text>
+        <text class="rule-desc">第一、三名同队</text>
+        <text class="rule-formula">胜队每人 +100，败队 +0</text>
       </view>
       <view class="rule-divider"></view>
       <view class="rule-item">
         <view class="rule-case case-100">100分局</view>
-        <text class="rule-desc">第一、四名同队（队友包揽首末）</text>
-        <text class="rule-formula">获胜队 +100，失败队 +0</text>
+        <text class="rule-desc">第一、四名同队</text>
+        <text class="rule-formula">胜队每人 +50，败队 +0</text>
       </view>
     </view>
-    <text class="rule-note">* 没有第一名的队伍不得分</text>
+    <text class="rule-note">* 每局队友可重新选择，积分累计到个人</text>
     <button class="modal-close" bindtap="hideRules">我知道了</button>
   </view>
 </view>
