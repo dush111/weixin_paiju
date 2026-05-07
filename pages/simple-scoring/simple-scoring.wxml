@@ -1,0 +1,114 @@
+<!-- pages/simple-scoring/simple-scoring.wxml -->
+<view class="container ss-container">
+
+  <!-- 顶部 -->
+  <view class="ss-top-bar">
+    <view class="ss-game-info">
+      <text class="ss-game-name">{{gameName}}</text>
+      <text class="ss-round-label">第 {{currentRound}} 局</text>
+    </view>
+  </view>
+
+  <!-- 得分汇总表格 -->
+  <view class="ss-table-card">
+    <text class="ss-card-title">得分汇总</text>
+    <view class="ss-table">
+      <!-- 表头 -->
+      <view class="ss-table-row ss-table-head">
+        <text class="ss-th ss-col-name">玩家</text>
+        <text class="ss-th ss-col-score">总分</text>
+        <view class="ss-th ss-col-rounds">
+          <text
+            class="ss-round-col-label"
+            wx:for="{{rounds}}"
+            wx:key="roundNumber"
+          >第{{item.roundNumber}}局</text>
+        </view>
+      </view>
+      <!-- 数据行 -->
+      <view
+        class="ss-table-row {{index === 0 ? 'ss-row-first' : ''}}"
+        wx:for="{{players}}"
+        wx:key="openid"
+        wx:for-index="pi"
+      >
+        <text class="ss-td ss-col-name ss-player-name">{{item.nickname}}</text>
+        <text class="ss-td ss-col-score ss-total-score">{{item.score || 0}}</text>
+        <view class="ss-td ss-col-rounds ss-round-cells">
+          <text
+            class="ss-round-cell {{rounds[ri].scorerIndexes.indexOf(pi) !== -1 ? 'ss-cell-win' : 'ss-cell-zero'}}"
+            wx:for="{{rounds}}"
+            wx:key="roundNumber"
+            wx:for-item="round"
+            wx:for-index="ri"
+          >{{round.scorerIndexes.indexOf(pi) !== -1 ? '+' + round.points : '—'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 本局记分操作 -->
+  <view class="ss-input-card">
+    <text class="ss-card-title">第 {{currentRound}} 局记分</text>
+
+    <!-- 选得分者 -->
+    <text class="ss-section-label">选择2位得分者</text>
+    <view class="ss-scorer-grid">
+      <view
+        class="ss-scorer-item {{selectedScorers.indexOf(index) !== -1 ? 'ss-scorer-selected' : ''}}"
+        wx:for="{{players}}"
+        wx:key="openid"
+        bindtap="toggleScorer"
+        data-pi="{{index}}"
+      >
+        <text class="ss-scorer-check" wx:if="{{selectedScorers.indexOf(index) !== -1}}">✓</text>
+        <text class="ss-scorer-name">{{item.nickname}}</text>
+        <text class="ss-scorer-total">{{item.score || 0}}分</text>
+      </view>
+    </view>
+
+    <!-- 选分值 -->
+    <text class="ss-section-label">选择本局分值（每人各得）</text>
+    <view class="ss-points-row">
+      <view
+        class="ss-points-btn {{selectedPoints === item ? 'ss-points-active' : ''}}"
+        wx:for="{{scoreOptions}}"
+        wx:key="*this"
+        bindtap="selectPoints"
+        data-val="{{item}}"
+      >{{item}}</view>
+    </view>
+
+    <!-- 预览 -->
+    <view class="ss-preview" wx:if="{{selectedScorers.length === 2}}">
+      <text class="ss-preview-text">
+        {{players[selectedScorers[0]].nickname}} &amp; {{players[selectedScorers[1]].nickname}} 各得 {{selectedPoints}} 分
+      </text>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button
+      class="ss-btn-submit {{selectedScorers.length !== 2 ? 'ss-btn-disabled' : ''}}"
+      disabled="{{selectedScorers.length !== 2}}"
+      bindtap="submitRound"
+    >确认记分</button>
+  </view>
+
+  <!-- 结束按钮 -->
+  <view class="ss-end-row">
+    <button class="ss-btn-end" bindtap="confirmEndGame">结束牌局</button>
+  </view>
+
+</view>
+
+<!-- 结束确认弹窗 -->
+<view class="ss-modal-mask" wx:if="{{showEndModal}}" bindtap="cancelEnd">
+  <view class="ss-modal-box" catchtap="">
+    <text class="ss-modal-title">确定结束牌局？</text>
+    <text class="ss-modal-sub">共完成 {{rounds.length}} 局，结束后数据将清除</text>
+    <view class="ss-modal-btns">
+      <view class="ss-modal-btn ss-modal-cancel" bindtap="cancelEnd">继续记分</view>
+      <view class="ss-modal-btn ss-modal-confirm" bindtap="doEndGame">结束</view>
+    </view>
+  </view>
+</view>

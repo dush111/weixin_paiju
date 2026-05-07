@@ -1,0 +1,347 @@
+/* pages/simple-scoring/simple-scoring.wxss */
+.ss-container {
+  min-height: 100vh;
+  padding: 0 0 80rpx;
+}
+
+/* 顶部栏 */
+.ss-top-bar {
+  background: rgba(255,255,255,0.06);
+  padding: 36rpx 40rpx 28rpx;
+  border-bottom: 1rpx solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ss-game-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.ss-game-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ss-round-label {
+  font-size: 26rpx;
+  color: #f5c518;
+  font-weight: 600;
+  background: rgba(245,197,24,0.12);
+  padding: 6rpx 18rpx;
+  border-radius: 20rpx;
+}
+
+/* 通用卡片 */
+.ss-table-card,
+.ss-input-card {
+  margin: 24rpx 24rpx 0;
+  background: rgba(255,255,255,0.04);
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(255,255,255,0.08);
+  padding: 28rpx;
+  overflow: hidden;
+}
+
+.ss-card-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 2rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 得分表格 */
+.ss-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ss-table-row {
+  display: flex;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid rgba(255,255,255,0.05);
+}
+
+.ss-table-row:last-child { border-bottom: none; }
+
+.ss-table-head {
+  border-bottom: 1rpx solid rgba(255,255,255,0.12);
+}
+
+.ss-th {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.4);
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.ss-td {
+  font-size: 26rpx;
+  color: #ffffff;
+}
+
+.ss-col-name {
+  width: 130rpx;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.ss-col-score {
+  width: 100rpx;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.ss-col-rounds {
+  flex: 1;
+  display: flex;
+  gap: 16rpx;
+  padding-left: 20rpx;
+  overflow-x: auto;
+}
+
+.ss-total-score {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #f5c518;
+  text-align: right;
+}
+
+.ss-player-name {
+  font-size: 28rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ss-round-col-label,
+.ss-round-cell {
+  font-size: 22rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 80rpx;
+  text-align: center;
+}
+
+.ss-round-col-label {
+  color: rgba(255,255,255,0.3);
+}
+
+.ss-cell-win {
+  color: #2ed573;
+  font-weight: 700;
+}
+
+.ss-cell-zero {
+  color: rgba(255,255,255,0.2);
+}
+
+/* 记分输入区 */
+.ss-section-label {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 16rpx;
+  margin-top: 24rpx;
+}
+
+.ss-scorer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+}
+
+.ss-scorer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 24rpx 16rpx;
+  border-radius: 18rpx;
+  border: 2rpx solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  position: relative;
+  transition: all 0.15s;
+}
+
+.ss-scorer-item.ss-scorer-selected {
+  border-color: #2ed573;
+  background: rgba(46,213,115,0.12);
+}
+
+.ss-scorer-check {
+  position: absolute;
+  top: 12rpx;
+  right: 16rpx;
+  font-size: 28rpx;
+  color: #2ed573;
+  font-weight: 700;
+}
+
+.ss-scorer-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ss-scorer-total {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.45);
+}
+
+.ss-scorer-item.ss-scorer-selected .ss-scorer-total {
+  color: rgba(46,213,115,0.7);
+}
+
+/* 分值选择 */
+.ss-points-row {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+  margin-bottom: 8rpx;
+}
+
+.ss-points-btn {
+  flex: 1;
+  min-width: 120rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  background: rgba(255,255,255,0.06);
+  border: 2rpx solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.ss-points-btn.ss-points-active {
+  background: rgba(233,69,96,0.2);
+  border-color: #e94560;
+  color: #e94560;
+}
+
+/* 预览 */
+.ss-preview {
+  margin-top: 20rpx;
+  background: rgba(46,213,115,0.08);
+  border: 1rpx solid rgba(46,213,115,0.25);
+  border-radius: 14rpx;
+  padding: 18rpx 24rpx;
+}
+
+.ss-preview-text {
+  font-size: 26rpx;
+  color: #2ed573;
+  font-weight: 600;
+}
+
+/* 提交按钮 */
+.ss-btn-submit {
+  width: 100%;
+  height: 96rpx;
+  margin-top: 28rpx;
+  background: linear-gradient(135deg, #2ed573, #17a84a);
+  border-radius: 50rpx;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 700;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ss-btn-submit::after { border: none; }
+
+.ss-btn-submit.ss-btn-disabled {
+  background: rgba(46,213,115,0.1);
+  color: rgba(46,213,115,0.3);
+}
+
+/* 结束按钮 */
+.ss-end-row {
+  padding: 28rpx 24rpx 0;
+}
+
+.ss-btn-end {
+  width: 100%;
+  height: 80rpx;
+  background: transparent;
+  border: 1rpx solid rgba(233,69,96,0.35);
+  border-radius: 50rpx;
+  color: rgba(233,69,96,0.65);
+  font-size: 28rpx;
+}
+
+.ss-btn-end::after { border: none; }
+
+/* 弹窗 */
+.ss-modal-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: flex-end;
+  z-index: 100;
+}
+
+.ss-modal-box {
+  background: #1a1a2e;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 48rpx 40rpx 60rpx;
+  width: 100%;
+  border-top: 1rpx solid rgba(255,255,255,0.1);
+}
+
+.ss-modal-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.ss-modal-sub {
+  display: block;
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.ss-modal-btns {
+  display: flex;
+  gap: 20rpx;
+}
+
+.ss-modal-btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 50rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ss-modal-cancel {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+}
+
+.ss-modal-confirm {
+  background: linear-gradient(135deg, #e94560, #c0392b);
+  color: #ffffff;
+}

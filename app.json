@@ -10,6 +10,7 @@
     "pages/waiting-room/waiting-room",
     "pages/scoring/scoring",
     "pages/game-detail/game-detail",
+    "pages/simple-scoring/simple-scoring",
     "pages/nickname/nickname"
   ],
   "window": {

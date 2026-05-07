@@ -5,13 +5,17 @@ const BOT_NAMES = ['张三', '李四', '王五', '赵六', '陈七', '钱八', '
 
 Page({
   data: {
+    // 模式选择：'standard' | 'simple'
+    gameMode: 'standard',
     step: 1,
     gameName: '',
+    // 简易模式：本地直接填4个玩家名字
+    simplePlayers: ['', '', '', ''],
     gameId: null,
     gameCode: '',
     qrCodeUrl: '',
-    players: [],       // 真实加入的玩家
-    filledPlayers: [], // 含机器人的4人展示列表
+    players: [],
+    filledPlayers: [],
     pollingTimer: null,
   },
 
@@ -27,7 +31,8 @@ Page({
     this.setData({
       players: [userInfo],
       filledPlayers: [userInfo],
-      gameName: `${userInfo.nickname}的牌局`
+      gameName: `${userInfo.nickname}的牌局`,
+      simplePlayers: [userInfo.nickname || '玩家1', '玩家2', '玩家3', '玩家4'],
     });
   },
 
@@ -39,8 +44,51 @@ Page({
     this.setData({ gameName: e.detail.value });
   },
 
-  selectRounds(e) {
-    this.setData({ targetRounds: e.currentTarget.dataset.val });
+  selectMode(e) {
+    this.setData({ gameMode: e.currentTarget.dataset.mode });
+  },
+
+  onSimplePlayerInput(e) {
+    const { index } = e.currentTarget.dataset;
+    const simplePlayers = [...this.data.simplePlayers];
+    simplePlayers[index] = e.detail.value;
+    this.setData({ simplePlayers });
+  },
+
+  // 简易模式：直接开始，无需等待房间
+  startSimpleGame() {
+    const { gameName, simplePlayers } = this.data;
+    if (!gameName.trim()) {
+      wx.showToast({ title: '请输入牌局名称', icon: 'none' });
+      return;
+    }
+    const names = simplePlayers.map(n => n.trim());
+    if (names.some(n => !n)) {
+      wx.showToast({ title: '请填写4位玩家名称', icon: 'none' });
+      return;
+    }
+    // 名字不能重复
+    if (new Set(names).size !== 4) {
+      wx.showToast({ title: '玩家名称不能重复', icon: 'none' });
+      return;
+    }
+    const userInfo = app.getUserInfo();
+    const players = names.map((name, i) => ({
+      openid: i === 0 ? (userInfo?.openid || 'host') : `simple_${i}`,
+      nickname: name,
+      avatarUrl: i === 0 ? (userInfo?.avatarUrl || '') : '',
+      isHost: i === 0,
+      position: i,
+      score: 0,
+    }));
+    // 将玩家信息传给 simple-scoring 页面（通过本地存储）
+    wx.setStorageSync('simpleGameData', {
+      gameName: gameName.trim(),
+      players,
+      rounds: [],
+      createdAt: Date.now(),
+    });
+    wx.redirectTo({ url: '/pages/simple-scoring/simple-scoring' });
   },
 
   async createGame() {
