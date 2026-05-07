@@ -29,6 +29,7 @@ exports.main = async (event, context) => {
       isBot: p.isBot || false,
       isHost: i === 0,
       position: i,
+      seatId: `seat_${i}`,   // 牌局内唯一座位标识，永久绑定，不随数组排序变化
       score: 0,
     }));
 

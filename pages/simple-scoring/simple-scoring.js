@@ -14,7 +14,9 @@ Page({
     currentRound: 1,
 
     // 本局输入
-    selectedScorers: [],   // 下标数组，最多2个
+    selectedScorers: [],   // seatId 数组，最多2个
+    scorerName0: '',       // 预览用：第1位得分者名字
+    scorerName1: '',       // 预览用：第2位得分者名字
     selectedPoints: 200,
     scoreOptions: SCORE_OPTIONS,
 
@@ -75,14 +77,10 @@ Page({
     }
   },
 
-  // 切换得分者（最多选2，点已选则取消）
+  // 切换得分者（最多选2，点已选则取消）—— 使用 seatId 标识，与数组下标无关
   toggleScorer(e) {
     const { pi } = e.currentTarget.dataset;
-    console.log('当前点击的index(pi)：', pi, typeof(pi));
-  console.log('全部选中列表selectedScorers：', this.data.selectedScorers);
-  console.log("数组类型",
-    this.data.selectedScorers.map(i => typeof i)
-  )
+    // pi 现在是 seatId 字符串
     let selected = [...this.data.selectedScorers];
     const idx = selected.indexOf(pi);
     if (idx !== -1) {
@@ -95,7 +93,13 @@ Page({
       }
       selected.push(pi);
     }
-    this.setData({ selectedScorers: selected });
+    // 同步更新预览用的玩家名
+    const findName = (seatId) => (this.data.players.find(p => p.seatId === seatId) || {}).nickname || '';
+    this.setData({
+      selectedScorers: selected,
+      scorerName0: selected[0] ? findName(selected[0]) : '',
+      scorerName1: selected[1] ? findName(selected[1]) : '',
+    });
   },
 
   // 选择分值
@@ -112,8 +116,10 @@ Page({
       return;
     }
 
-    const name1 = players[selectedScorers[0]].nickname;
-    const name2 = players[selectedScorers[1]].nickname;
+    // selectedScorers 存的是 seatId，通过 seatId 查找玩家名
+    const findName = (seatId) => (players.find(p => p.seatId === seatId) || {}).nickname || seatId;
+    const name1 = findName(selectedScorers[0]);
+    const name2 = findName(selectedScorers[1]);
     const confirmText = `${name1} & ${name2} 各得 ${selectedPoints} 分`;
 
     wx.showModal({
@@ -132,13 +138,13 @@ Page({
             data: {
               gameId,
               roundNumber: currentRound,
-              scorerIndexes: [...selectedScorers],
+              scorerSeatIds: [...selectedScorers],   // 传 seatId 而非下标
               points: selectedPoints,
             }
           });
           if (result.result.success) {
             wx.vibrateShort({ type: 'light' });
-            this.setData({ selectedScorers: [], selectedPoints: 200 });
+            this.setData({ selectedScorers: [], scorerName0: '', scorerName1: '', selectedPoints: 200 });
             this.loadGameData();
           } else {
             wx.showToast({ title: result.result.message || '提交失败', icon: 'none' });

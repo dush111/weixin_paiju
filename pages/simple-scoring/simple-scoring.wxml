@@ -25,23 +25,21 @@
           >第{{item.roundNumber}}局</text>
         </view>
       </view>
-      <!-- 数据行 -->
+      <!-- 数据行：用 seatId 匹配每局得分，不依赖数组下标 -->
       <view
         class="ss-table-row"
         wx:for="{{players}}"
-        wx:key="openid"
-        wx:for-index="pi"
+        wx:key="seatId"
       >
         <text class="ss-td ss-col-name ss-player-name">{{item.nickname}}</text>
         <text class="ss-td ss-col-score ss-total-score">{{item.score || 0}}</text>
         <view class="ss-td ss-col-rounds ss-round-cells">
           <text
-            class="ss-round-cell {{rounds[ri].scorerIndexes[0] == pi || rounds[ri].scorerIndexes[1] == pi ? 'ss-cell-win' : 'ss-cell-zero'}}"
+            class="ss-round-cell {{round.scorerSeatIds[0] === item.seatId || round.scorerSeatIds[1] === item.seatId ? 'ss-cell-win' : 'ss-cell-zero'}}"
             wx:for="{{rounds}}"
             wx:key="roundNumber"
             wx:for-item="round"
-            wx:for-index="ri"
-          >{{round.scorerIndexes[0] == pi || round.scorerIndexes[1] == pi ? '+' + round.points : '—'}}</text>
+          >{{round.scorerSeatIds[0] === item.seatId || round.scorerSeatIds[1] === item.seatId ? '+' + round.points : '—'}}</text>
         </view>
       </view>
     </view>
@@ -51,22 +49,22 @@
   <view class="ss-input-card">
     <text class="ss-card-title">第 {{currentRound}} 局记分</text>
 
-    <!-- 选得分者 -->
+    <!-- 选得分者：data-pi 传 seatId，selectedScorers 存 seatId -->
     <text class="ss-section-label">选择2位得分者（点击已选可取消）</text>
     <view class="ss-scorer-grid">
       <view
-        class="ss-scorer-item {{selectedScorers[0] == index || selectedScorers[1] == index  ? 'ss-scorer-selected' : ''}}"
+        class="ss-scorer-item {{selectedScorers.indexOf(item.seatId) !== -1 ? 'ss-scorer-selected' : ''}}"
         wx:for="{{players}}"
-        wx:key="openid"
+        wx:key="seatId"
         bindtap="toggleScorer"
-        data-pi="{{index}}"
+        data-pi="{{item.seatId}}"
       >
         <!-- 选中角标 -->
-        <view class="ss-scorer-badge" wx:if="{{selectedScorers[0] == index || selectedScorers[1] == index }}">
+        <view class="ss-scorer-badge" wx:if="{{selectedScorers.indexOf(item.seatId) !== -1}}">
           <text class="ss-scorer-badge-text">✓</text>
         </view>
         <!-- 头像占位圆 -->
-        <view class="ss-scorer-avatar {{selectedScorers.indexOf(index) !== -1 ? 'ss-scorer-avatar-selected' : ''}}">
+        <view class="ss-scorer-avatar {{selectedScorers.indexOf(item.seatId) !== -1 ? 'ss-scorer-avatar-selected' : ''}}">
           <text class="ss-scorer-avatar-text">{{item.nickname.substring(0,1)}}</text>
         </view>
         <text class="ss-scorer-name">{{item.nickname}}</text>
@@ -86,10 +84,10 @@
       >{{item}}</view>
     </view>
 
-    <!-- 预览 -->
+    <!-- 预览：通过 seatId 查玩家名 -->
     <view class="ss-preview" wx:if="{{selectedScorers.length === 2}}">
       <text class="ss-preview-text">
-        {{players[selectedScorers[0]].nickname}} &amp; {{players[selectedScorers[1]].nickname}} 各得 {{selectedPoints}} 分
+        {{scorerName0}} &amp; {{scorerName1}} 各得 {{selectedPoints}} 分
       </text>
     </view>
 

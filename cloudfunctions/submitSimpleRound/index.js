@@ -1,5 +1,6 @@
 // 云函数：submitSimpleRound
 // 功能：简易模式提交单局记分（选2名得分者 + 分值，每人各得该分）
+// 使用 seatId 唯一标识玩家，不依赖数组下标，防止顺序变化导致记分错误
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -8,9 +9,9 @@ const _ = db.command;
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const { OPENID } = wxContext;
-  // scorerIndexes: 得分者在 players 数组中的下标，长度必须为 2
+  // scorerSeatIds: 得分者的 seatId 数组（长度必须为 2）
   // points: 本局分值，每人各得
-  const { gameId, roundNumber, scorerIndexes, points } = event;
+  const { gameId, roundNumber, scorerSeatIds, points } = event;
 
   try {
     const { data: game } = await db.collection('games').doc(gameId).get();
@@ -30,23 +31,30 @@ exports.main = async (event, context) => {
       return { success: true, duplicate: true, message: '该局已记录，请勿重复提交' };
     }
 
-    if (!scorerIndexes || scorerIndexes.length !== 2) {
+    if (!scorerSeatIds || scorerSeatIds.length !== 2) {
       return { success: false, message: '请选择2名得分者' };
     }
 
-    const scorerSet = new Set(scorerIndexes);
+    // 校验 seatId 都合法
+    const allSeatIds = new Set(game.players.map(p => p.seatId));
+    for (const sid of scorerSeatIds) {
+      if (!allSeatIds.has(sid)) {
+        return { success: false, message: `无效的座位ID: ${sid}` };
+      }
+    }
 
-    // 更新玩家积分
-    const updatedPlayers = game.players.map((p, i) => ({
+    const scorerSet = new Set(scorerSeatIds);
+
+    // 按 seatId 更新玩家积分，与数组顺序无关
+    const updatedPlayers = game.players.map(p => ({
       ...p,
-      score: (p.score || 0) + (scorerSet.has(i) ? points : 0),
+      score: (p.score || 0) + (scorerSet.has(p.seatId) ? points : 0),
     }));
 
     const newRound = {
       roundNumber,
-      scorerIndexes,
+      scorerSeatIds,   // 存 seatId，不存下标
       points,
-      // 简易模式标识
       mode: 'simple',
       recordedBy: OPENID,
       createdAt: new Date(),
