@@ -154,65 +154,105 @@
 .ss-scorer-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
+  gap: 20rpx;
   margin-bottom: 8rpx;
+  /* 允许角标超出格子边缘显示 */
+  padding: 16rpx 16rpx 8rpx;
 }
 
+/* ---- 默认态：有明显轮廓和底色 ---- */
 .ss-scorer-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rpx;
-  padding: 24rpx 16rpx;
-  border-radius: 18rpx;
-  border: 2rpx solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.04);
+  gap: 10rpx;
+  padding: 28rpx 16rpx 22rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
   position: relative;
-  transition: all 0.15s;
+  overflow: visible;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
-.ss-scorer-item.ss-scorer-selected {
-  border-color: #2ed573;
-  background: rgba(46,213,115,0.14);
-  box-shadow: 0 0 0 2rpx rgba(46,213,115,0.25);
-  transform: scale(1.02);
-}
-
-/* 选中角标（右上角绿圆圈✓） */
-.ss-scorer-badge {
-  position: absolute;
-  top: -14rpx;
-  right: -14rpx;
-  width: 40rpx;
-  height: 40rpx;
+/* 头像占位圆 */
+.ss-scorer-avatar {
+  width: 64rpx;
+  height: 64rpx;
   border-radius: 50%;
-  background: #2ed573;
+  background: rgba(255,255,255,0.1);
+  border: 2rpx solid rgba(255,255,255,0.18);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1;
+  margin-bottom: 4rpx;
+}
+
+.ss-scorer-avatar-selected {
+  background: rgba(46,213,115,0.25);
+  border-color: rgba(46,213,115,0.6);
+}
+
+.ss-scorer-avatar-text {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+}
+
+.ss-scorer-item.ss-scorer-selected .ss-scorer-avatar-text {
+  color: #2ed573;
+}
+
+/* ---- 选中态：绿色高亮 ---- */
+.ss-scorer-item.ss-scorer-selected {
+  border-color: #2ed573;
+  background: rgba(46,213,115,0.18);
+  box-shadow: 0 0 0 3rpx rgba(46,213,115,0.3), 0 8rpx 24rpx rgba(46,213,115,0.15);
+}
+
+/* 选中角标：右上角绿色圆圈 ✓ */
+.ss-scorer-badge {
+  position: absolute;
+  top: -16rpx;
+  right: -16rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: #2ed573;
+  border: 3rpx solid #0f0f23;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 .ss-scorer-badge-text {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #0a0a1a;
   font-weight: 900;
   line-height: 1;
 }
 
+/* 玩家名 */
 .ss-scorer-name {
   font-size: 28rpx;
   font-weight: 700;
   color: #ffffff;
 }
 
+.ss-scorer-item.ss-scorer-selected .ss-scorer-name {
+  color: #2ed573;
+}
+
+/* 当前分 */
 .ss-scorer-total {
   font-size: 22rpx;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.4);
 }
 
 .ss-scorer-item.ss-scorer-selected .ss-scorer-total {
-  color: rgba(46,213,115,0.7);
+  color: rgba(46,213,115,0.75);
+  font-weight: 600;
 }
 
 /* 分值选择 */

@@ -65,6 +65,10 @@
         <view class="ss-scorer-badge" wx:if="{{selectedScorers.indexOf(index) !== -1}}">
           <text class="ss-scorer-badge-text">✓</text>
         </view>
+        <!-- 头像占位圆 -->
+        <view class="ss-scorer-avatar {{selectedScorers.indexOf(index) !== -1 ? 'ss-scorer-avatar-selected' : ''}}">
+          <text class="ss-scorer-avatar-text">{{item.nickname.substring(0,1)}}</text>
+        </view>
         <text class="ss-scorer-name">{{item.nickname}}</text>
         <text class="ss-scorer-total">{{item.score || 0}}分</text>
       </view>
