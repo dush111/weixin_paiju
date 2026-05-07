@@ -77,32 +77,20 @@ exports.main = async (event, context) => {
     };
 
     const newCurrentRound = roundNumber + 1;
-    const gameOver = roundNumber >= game.targetRounds;
 
     await db.collection('games').doc(gameId).update({
       data: {
         rounds: _.push(newRound),
-        currentRound: gameOver ? roundNumber : newCurrentRound,
-        status: gameOver ? 'finished' : 'playing',
+        currentRound: newCurrentRound,
         players: updatedPlayers,
         updatedAt: db.serverDate(),
-        ...(gameOver ? { endedAt: db.serverDate() } : {})
       }
     });
-
-    // 游戏结束后更新用户统计
-    if (gameOver) {
-      await updatePlayerStats(updatedPlayers);
-    }
-
-    // 找出个人冠军（积分最高）
-    const topPlayer = updatedPlayers.reduce((a, b) => (a.score || 0) >= (b.score || 0) ? a : b);
 
     return {
       success: true,
       data: {
-        gameOver,
-        topPlayer: topPlayer.nickname,
+        gameOver: false,
       }
     };
   } catch (err) {
@@ -110,20 +98,3 @@ exports.main = async (event, context) => {
     return { success: false, message: err.message };
   }
 };
-
-async function updatePlayerStats(updatedPlayers) {
-  // 按积分排序找冠军
-  const sorted = [...updatedPlayers].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const winnerOpenid = sorted[0].openid;
-
-  const updates = updatedPlayers.map(player =>
-    db.collection('users').where({ openid: player.openid }).update({
-      data: {
-        totalGames: db.command.inc(1),
-        wins: db.command.inc(player.openid === winnerOpenid ? 1 : 0),
-        updatedAt: db.serverDate(),
-      }
-    })
-  );
-  await Promise.all(updates);
-}

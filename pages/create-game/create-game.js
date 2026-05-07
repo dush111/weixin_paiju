@@ -7,16 +7,11 @@ Page({
   data: {
     step: 1,
     gameName: '',
-    targetRounds: 10,
-    roundOptions: [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
     gameId: null,
     gameCode: '',
     qrCodeUrl: '',
     players: [],       // 真实加入的玩家
     filledPlayers: [], // 含机器人的4人展示列表
-    teammateIndex: -1, // 房主选择的队友在 filledPlayers 中的下标（1/2/3）
-    teamANames: '',
-    teamBNames: '',
     pollingTimer: null,
   },
 
@@ -49,7 +44,7 @@ Page({
   },
 
   async createGame() {
-    const { gameName, targetRounds } = this.data;
+    const { gameName } = this.data;
     if (!gameName.trim()) {
       wx.showToast({ title: '请输入牌局名称', icon: 'none' });
       return;
@@ -59,7 +54,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'createGame',
-        data: { gameName: gameName.trim(), targetRounds }
+        data: { gameName: gameName.trim() }
       });
 
       if (res.result.success) {
@@ -111,18 +106,12 @@ Page({
       });
       if (res.result.success) {
         const { players } = res.result.data;
-        // 更新真实玩家列表，保留已有机器人位置
-        const { filledPlayers, teammateIndex } = this.data;
+        const { filledPlayers } = this.data;
         const newFilled = [...filledPlayers];
-        // 用真实玩家数据替换对应位置（保留机器人）
         players.forEach((p, i) => { newFilled[i] = p; });
         const updates = { players, filledPlayers: newFilled };
         if (players.length === 4 && filledPlayers.length < 4) {
           wx.vibrateShort({ type: 'medium' });
-        }
-        // 刷新队伍预览
-        if (teammateIndex >= 0) {
-          Object.assign(updates, this.calcTeamNames(newFilled, teammateIndex));
         }
         this.setData(updates);
       }
@@ -150,30 +139,9 @@ Page({
     this.setData({ filledPlayers: newFilled });
   },
 
-  // 选择队友
-  selectTeammate(e) {
-    const idx = e.currentTarget.dataset.index;
-    const { filledPlayers, teammateIndex } = this.data;
-    const newIdx = teammateIndex === idx ? -1 : idx;
-    const updates = { teammateIndex: newIdx };
-    if (newIdx >= 0) {
-      Object.assign(updates, this.calcTeamNames(filledPlayers, newIdx));
-    } else {
-      updates.teamANames = '';
-      updates.teamBNames = '';
-    }
-    this.setData(updates);
-  },
+  // 选择队友（已移除，队友每局在记分页选择）
 
-  // 计算队伍名称预览
-  calcTeamNames(filledPlayers, teammateIndex) {
-    // A队：0（房主）+ teammateIndex；B队：其余两人
-    const aNames = [filledPlayers[0], filledPlayers[teammateIndex]]
-      .filter(Boolean).map(p => p.nickname).join(' & ');
-    const bNames = [1, 2, 3].filter(i => i !== teammateIndex)
-      .map(i => filledPlayers[i]).filter(Boolean).map(p => p.nickname).join(' & ');
-    return { teamANames: aNames, teamBNames: bNames };
-  },
+  // 计算队伍名称预览（已移除）
 
   async copyGameCode() {
     const { gameCode, gameName } = this.data;
@@ -198,12 +166,8 @@ Page({
   },
 
   async startGame() {
-    const { filledPlayers, teammateIndex, gameId } = this.data;
+    const { filledPlayers, gameId } = this.data;
     if (filledPlayers.length < 4) return;
-    if (teammateIndex < 0) {
-      wx.showToast({ title: '请先选择你的队友', icon: 'none' });
-      return;
-    }
 
     wx.showLoading({ title: '开始中...' });
     try {
@@ -211,8 +175,7 @@ Page({
         name: 'startGame',
         data: {
           gameId,
-          filledPlayers,   // 含机器人的4人完整列表
-          teammateIndex,   // 房主的队友下标
+          filledPlayers,
         }
       });
 

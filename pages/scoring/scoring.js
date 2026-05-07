@@ -5,9 +5,7 @@ Page({
   data: {
     gameId: '',
     gameName: '',
-    targetRounds: 10,
     currentRound: 1,
-    progressPct: 0,
     isHost: false,
     currentLevel: '2',
     levelOptions: ['2','3','4','5','6','7','8','9','10','J','Q','K','A'],
@@ -69,14 +67,12 @@ Page({
         const myIndex = d.players.findIndex(p => p.openid === myOpenid);
         this.setData({
           gameName: d.name,
-          targetRounds: d.targetRounds,
           currentRound: d.currentRound,
           isHost: d.hostOpenid === myOpenid,
           currentLevel: d.currentLevel || '2',
           players: d.players,
           myIndex,
           rounds: d.rounds,
-          progressPct: Math.round((d.currentRound - 1) / d.targetRounds * 100)
         });
       }
     } catch (err) {
@@ -272,11 +268,7 @@ Page({
                 previewReady: false,
               });
 
-              if (!result.result.duplicate && result.result.data && result.result.data.gameOver) {
-                this.showGameOver(result.result.data);
-              } else {
-                this.loadGameData();
-              }
+              this.loadGameData();
             } else {
               wx.showToast({ title: result.result.message || '提交失败', icon: 'none' });
             }
@@ -287,22 +279,6 @@ Page({
             this._submitting = false;
           }
         }
-      }
-    });
-  },
-
-  showGameOver(data) {
-    // 按个人积分排序找出第一名
-    const topPlayer = data.topPlayer || '未知';
-    wx.showModal({
-      title: '🎉 牌局结束',
-      content: `本局结束！\n个人冠军：${topPlayer}`,
-      showCancel: false,
-      confirmText: '查看详情',
-      success: () => {
-        wx.redirectTo({
-          url: `/pages/game-detail/game-detail?id=${this.data.gameId}`
-        });
       }
     });
   },

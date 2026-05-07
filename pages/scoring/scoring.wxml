@@ -5,10 +5,7 @@
   <view class="top-bar">
     <view class="game-info">
       <text class="game-name">{{gameName}}</text>
-      <text class="round-info">第 {{currentRound}} 局 / 共 {{targetRounds}} 局</text>
-    </view>
-    <view class="progress-bar">
-      <view class="progress-fill" style="width: {{progressPct}}%"></view>
+      <text class="round-info">第 {{currentRound}} 局</text>
     </view>
     <view class="settings-row">
       <picker wx:if="{{isHost}}" mode="selector" range="{{levelOptions}}" bindchange="changeLevel">
