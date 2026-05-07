@@ -36,12 +36,12 @@
         <text class="ss-td ss-col-score ss-total-score">{{item.score || 0}}</text>
         <view class="ss-td ss-col-rounds ss-round-cells">
           <text
-            class="ss-round-cell {{rounds[ri].scorerIndexes.indexOf(pi) !== -1 ? 'ss-cell-win' : 'ss-cell-zero'}}"
+            class="ss-round-cell {{rounds[ri].scorerIndexes[0] == pi || rounds[ri].scorerIndexes[1] == pi ? 'ss-cell-win' : 'ss-cell-zero'}}"
             wx:for="{{rounds}}"
             wx:key="roundNumber"
             wx:for-item="round"
             wx:for-index="ri"
-          >{{round.scorerIndexes.indexOf(pi) !== -1 ? '+' + round.points : '—'}}</text>
+          >{{round.scorerIndexes[0] == pi || round.scorerIndexes[1] == pi ? '+' + round.points : '—'}}</text>
         </view>
       </view>
     </view>
@@ -55,14 +55,14 @@
     <text class="ss-section-label">选择2位得分者（点击已选可取消）</text>
     <view class="ss-scorer-grid">
       <view
-        class="ss-scorer-item {{selectedScorers.indexOf(index) !== -1 ? 'ss-scorer-selected' : ''}}"
+        class="ss-scorer-item {{selectedScorers[0] == index || selectedScorers[1] == index  ? 'ss-scorer-selected' : ''}}"
         wx:for="{{players}}"
         wx:key="openid"
         bindtap="toggleScorer"
         data-pi="{{index}}"
       >
         <!-- 选中角标 -->
-        <view class="ss-scorer-badge" wx:if="{{selectedScorers.indexOf(index) !== -1}}">
+        <view class="ss-scorer-badge" wx:if="{{selectedScorers[0] == index || selectedScorers[1] == index }}">
           <text class="ss-scorer-badge-text">✓</text>
         </view>
         <!-- 头像占位圆 -->

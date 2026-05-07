@@ -78,6 +78,11 @@ Page({
   // 切换得分者（最多选2，点已选则取消）
   toggleScorer(e) {
     const { pi } = e.currentTarget.dataset;
+    console.log('当前点击的index(pi)：', pi, typeof(pi));
+  console.log('全部选中列表selectedScorers：', this.data.selectedScorers);
+  console.log("数组类型",
+    this.data.selectedScorers.map(i => typeof i)
+  )
     let selected = [...this.data.selectedScorers];
     const idx = selected.indexOf(pi);
     if (idx !== -1) {
