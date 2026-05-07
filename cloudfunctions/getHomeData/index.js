@@ -82,25 +82,40 @@ exports.main = async (event, context) => {
     // 今日战绩
     let todayScore = 0, todayWins = 0;
     todayGames.forEach(g => {
-      const me = g.players.find(p => p.openid === OPENID);
-      if (!me) return;
       const myIdx = g.players.findIndex(p => p.openid === OPENID);
+      if (myIdx < 0) return;
+      let myGameScore = 0;
       (g.rounds || []).forEach(round => {
         if (!round.ranks) return;
         const rankPos = round.ranks.indexOf(myIdx);
-        todayScore += RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
+        const s = RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
+        myGameScore += s;
+        todayScore += s;
       });
-      const myTeamScore = me.team === 'A' ? (g.teamAScore || 0) : (g.teamBScore || 0);
-      const oppTeamScore = me.team === 'A' ? (g.teamBScore || 0) : (g.teamAScore || 0);
-      if (myTeamScore >= oppTeamScore) todayWins++;
+      // 以个人积分是否最高判断胜场（积分 >= 第2名视为胜）
+      if (myGameScore >= RANK_SCORES[1]) todayWins++;
     });
 
-    // 最近牌局格式化
+    // 最近牌局格式化：分数取该局每轮名次积分之和
     const formattedRecent = recentGames.map(g => {
-      const me = g.players.find(p => p.openid === OPENID);
-      const myTeam = me ? me.team : 'A';
-      const myScore = myTeam === 'A' ? (g.teamAScore || 0) : (g.teamBScore || 0);
-      const myRank = me ? (me.lastRank || 4) : 4;
+      const myIdx = g.players.findIndex(p => p.openid === OPENID);
+      let myScore = 0;
+      let myRank = 4;
+      if (myIdx >= 0) {
+        const rounds = g.rounds || [];
+        rounds.forEach(round => {
+          if (!round.ranks) return;
+          const rankPos = round.ranks.indexOf(myIdx);
+          myScore += RANK_SCORES[rankPos] !== undefined ? RANK_SCORES[rankPos] : 1;
+        });
+        // 取最后一局名次作为展示名次
+        if (rounds.length > 0) {
+          const lastRound = rounds[rounds.length - 1];
+          if (lastRound.ranks) {
+            myRank = (lastRound.ranks.indexOf(myIdx) + 1) || 4;
+          }
+        }
+      }
       return {
         ...g,
         myRank,

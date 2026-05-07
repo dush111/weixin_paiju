@@ -71,7 +71,6 @@ Page({
     const myIdx = game.players.findIndex(p => p.openid === myOpenid);
     const myPlayer = myIdx >= 0 ? game.players[myIdx] : null;
     const myRank = myPlayer?.rank || 4;
-    const myTeam = myPlayer?.team || '-';
 
     // 个人积分：遍历每轮 ranks 按名次累加
     let myScore = 0;
@@ -103,7 +102,6 @@ Page({
       ...game,
       myRank,
       myScore,
-      myTeam,
       playersText: otherPlayers ? `与${otherPlayers}等` : '牌局',
       formattedDate,
       statusText: statusMap[game.status] || '未知',

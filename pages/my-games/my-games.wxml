@@ -85,7 +85,6 @@
           {{item.myScore >= 0 ? '+' : ''}}{{item.myScore}}
         </text>
         <text class="game-score-label">积分</text>
-        <text class="game-team">{{item.myTeam}}队</text>
         <view
           wx:if="{{item.canDelete}}"
           class="btn-delete"
