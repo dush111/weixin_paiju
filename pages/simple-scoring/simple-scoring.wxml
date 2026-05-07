@@ -55,7 +55,7 @@
     <text class="ss-section-label">选择2位得分者（点击已选可取消）</text>
     <view class="ss-scorer-grid">
       <view
-        class="ss-scorer-item {{selectedScorers.indexOf(index) !== -1 ? '' : 'ss-scorer-selected'}}"
+        class="ss-scorer-item {{selectedScorers.indexOf(index) !== -1 ? 'ss-scorer-selected' : ''}}"
         wx:for="{{players}}"
         wx:key="openid"
         bindtap="toggleScorer"
@@ -66,7 +66,7 @@
           <text class="ss-scorer-badge-text">✓</text>
         </view>
         <!-- 头像占位圆 -->
-        <view class="ss-scorer-avatar {{selectedScorers.indexOf(index) !== -1 ? '' : 'ss-scorer-avatar-selected'}}">
+        <view class="ss-scorer-avatar {{selectedScorers.indexOf(index) !== -1 ? 'ss-scorer-avatar-selected' : ''}}">
           <text class="ss-scorer-avatar-text">{{item.nickname.substring(0,1)}}</text>
         </view>
         <text class="ss-scorer-name">{{item.nickname}}</text>
