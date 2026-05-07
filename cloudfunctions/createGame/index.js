@@ -17,7 +17,7 @@ function generateCode() {
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const { OPENID } = wxContext;
-  const { gameName, targetRounds } = event;
+  const { gameName, targetRounds, gameMode } = event;
 
   try {
     // 获取用户信息
@@ -37,6 +37,7 @@ exports.main = async (event, context) => {
         name: gameName,
         inviteCode: inviteCode,
         hostOpenid: OPENID,
+        gameMode: gameMode || 'standard',  // 'standard' | 'simple'
         targetRounds: targetRounds || 10,
         currentRound: 1,
         status: 'waiting', // waiting | playing | finished | cancelled

@@ -1,59 +1,87 @@
 // pages/simple-scoring/simple-scoring.js
-// 简易模式：本地记分，无队伍，选2名得分者+分值，简单表格
+// 简易模式：云端存储，选2名得分者+分值，表格记录每人得分
+const app = getApp();
 
 const SCORE_OPTIONS = [100, 150, 200, 300];
 
 Page({
   data: {
+    gameId: '',
     gameName: '',
-    players: [],   // [{openid, nickname, score}]
-    rounds: [],    // [{roundNumber, scorer1, scorer2, points, note}]
+    isHost: false,
+    players: [],       // [{openid, nickname, avatarUrl, score}]
+    rounds: [],        // 每局记录
     currentRound: 1,
 
-    // 当前局输入
-    // 得分者选择：最多2人
+    // 本局输入
     selectedScorers: [],   // 下标数组，最多2个
-    selectedPoints: 200,   // 本局得分值（每人各得此分）
+    selectedPoints: 200,
     scoreOptions: SCORE_OPTIONS,
 
     showEndModal: false,
+    pollingTimer: null,
+    submitting: false,
   },
 
-  onLoad() {
-    const data = wx.getStorageSync('simpleGameData');
-    if (!data) {
-      wx.showToast({ title: '数据丢失，请重新创建', icon: 'none' });
+  onLoad(options) {
+    const { gameId } = options;
+    if (!gameId) {
+      wx.showToast({ title: '参数错误', icon: 'none' });
       setTimeout(() => wx.navigateBack(), 1200);
       return;
     }
-    this.setData({
-      gameName: data.gameName,
-      players: data.players.map(p => ({ ...p, score: 0 })),
-      rounds: data.rounds || [],
-      currentRound: (data.rounds || []).length + 1,
-    });
+    this.setData({ gameId });
+    this.loadGameData();
+    this.startSync();
   },
 
   onUnload() {
-    // 离开时保存最新数据
-    this._saveToStorage();
+    this.stopSync();
   },
 
-  _saveToStorage() {
-    wx.setStorageSync('simpleGameData', {
-      gameName: this.data.gameName,
-      players: this.data.players,
-      rounds: this.data.rounds,
-      createdAt: wx.getStorageSync('simpleGameData')?.createdAt || Date.now(),
-    });
+  startSync() {
+    const timer = setInterval(() => {
+      this.loadGameData();
+    }, 5000);
+    this.setData({ pollingTimer: timer });
   },
 
-  // 切换得分者（最多选2）
+  stopSync() {
+    if (this.data.pollingTimer) {
+      clearInterval(this.data.pollingTimer);
+      this.setData({ pollingTimer: null });
+    }
+  },
+
+  async loadGameData() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getGameScore',
+        data: { gameId: this.data.gameId }
+      });
+      if (res.result.success) {
+        const d = res.result.data;
+        const myOpenid = app.globalData?.userInfo?.openid || app.getUserInfo()?.openid;
+        this.setData({
+          gameName: d.name,
+          currentRound: d.currentRound || 1,
+          isHost: d.hostOpenid === myOpenid,
+          players: d.players,
+          rounds: d.rounds || [],
+        });
+      }
+    } catch (err) {
+      console.error('加载记分数据失败:', err);
+    }
+  },
+
+  // 切换得分者（最多选2，点已选则取消）
   toggleScorer(e) {
     const { pi } = e.currentTarget.dataset;
     let selected = [...this.data.selectedScorers];
     const idx = selected.indexOf(pi);
     if (idx !== -1) {
+      // 已选中 → 取消
       selected.splice(idx, 1);
     } else {
       if (selected.length >= 2) {
@@ -71,49 +99,51 @@ Page({
   },
 
   // 提交本局
-  submitRound() {
-    const { selectedScorers, selectedPoints, players, rounds, currentRound, gameName } = this.data;
+  async submitRound() {
+    const { gameId, selectedScorers, selectedPoints, players, currentRound, submitting } = this.data;
+    if (submitting) return;
     if (selectedScorers.length !== 2) {
       wx.showToast({ title: '请选择2位得分者', icon: 'none' });
       return;
     }
 
-    const scorer1 = players[selectedScorers[0]].nickname;
-    const scorer2 = players[selectedScorers[1]].nickname;
-    const confirmText = `${scorer1} & ${scorer2} 各得 ${selectedPoints} 分`;
+    const name1 = players[selectedScorers[0]].nickname;
+    const name2 = players[selectedScorers[1]].nickname;
+    const confirmText = `${name1} & ${name2} 各得 ${selectedPoints} 分`;
 
     wx.showModal({
       title: `第 ${currentRound} 局确认`,
       content: confirmText,
       confirmText: '确认',
       confirmColor: '#2ed573',
-      success: (res) => {
+      success: async (res) => {
         if (!res.confirm) return;
-
-        // 更新玩家总分
-        const newPlayers = players.map((p, i) => ({
-          ...p,
-          score: (p.score || 0) + (selectedScorers.includes(i) ? selectedPoints : 0),
-        }));
-
-        const newRound = {
-          roundNumber: currentRound,
-          scorerIndexes: [...selectedScorers],
-          scorer1,
-          scorer2,
-          points: selectedPoints,
-        };
-
-        this.setData({
-          players: newPlayers,
-          rounds: [...rounds, newRound],
-          currentRound: currentRound + 1,
-          selectedScorers: [],
-          selectedPoints: 200,
-        });
-
-        this._saveToStorage();
-        wx.vibrateShort({ type: 'light' });
+        if (this.data.submitting) return;
+        this.setData({ submitting: true });
+        wx.showLoading({ title: '提交中...' });
+        try {
+          const result = await wx.cloud.callFunction({
+            name: 'submitSimpleRound',
+            data: {
+              gameId,
+              roundNumber: currentRound,
+              scorerIndexes: [...selectedScorers],
+              points: selectedPoints,
+            }
+          });
+          if (result.result.success) {
+            wx.vibrateShort({ type: 'light' });
+            this.setData({ selectedScorers: [], selectedPoints: 200 });
+            this.loadGameData();
+          } else {
+            wx.showToast({ title: result.result.message || '提交失败', icon: 'none' });
+          }
+        } catch (err) {
+          wx.showToast({ title: '提交失败', icon: 'error' });
+        } finally {
+          wx.hideLoading();
+          this.setData({ submitting: false });
+        }
       }
     });
   },
@@ -127,15 +157,26 @@ Page({
     this.setData({ showEndModal: false });
   },
 
-  doEndGame() {
-    this._saveToStorage();
+  async doEndGame() {
     this.setData({ showEndModal: false });
-    // 清理本次 session 数据（保留历史可查）
-    wx.removeStorageSync('simpleGameData');
-    wx.showToast({ title: '牌局已结束', icon: 'success' });
-    setTimeout(() => {
-      wx.switchTab({ url: '/pages/home/home' });
-    }, 1000);
+    wx.showLoading({ title: '结束中...' });
+    try {
+      await wx.cloud.callFunction({
+        name: 'endGame',
+        data: { gameId: this.data.gameId }
+      });
+      this.stopSync();
+      wx.showToast({ title: '牌局已结束', icon: 'success' });
+      setTimeout(() => {
+        wx.redirectTo({
+          url: `/pages/game-detail/game-detail?id=${this.data.gameId}`
+        });
+      }, 800);
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'error' });
+    } finally {
+      wx.hideLoading();
+    }
   },
 
   onShareAppMessage() {

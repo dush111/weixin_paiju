@@ -9,8 +9,6 @@ Page({
     gameMode: 'standard',
     step: 1,
     gameName: '',
-    // 简易模式：本地直接填4个玩家名字
-    simplePlayers: ['', '', '', ''],
     gameId: null,
     gameCode: '',
     qrCodeUrl: '',
@@ -32,7 +30,6 @@ Page({
       players: [userInfo],
       filledPlayers: [userInfo],
       gameName: `${userInfo.nickname}的牌局`,
-      simplePlayers: [userInfo.nickname || '玩家1', '玩家2', '玩家3', '玩家4'],
     });
   },
 
@@ -48,49 +45,6 @@ Page({
     this.setData({ gameMode: e.currentTarget.dataset.mode });
   },
 
-  onSimplePlayerInput(e) {
-    const { index } = e.currentTarget.dataset;
-    const simplePlayers = [...this.data.simplePlayers];
-    simplePlayers[index] = e.detail.value;
-    this.setData({ simplePlayers });
-  },
-
-  // 简易模式：直接开始，无需等待房间
-  startSimpleGame() {
-    const { gameName, simplePlayers } = this.data;
-    if (!gameName.trim()) {
-      wx.showToast({ title: '请输入牌局名称', icon: 'none' });
-      return;
-    }
-    const names = simplePlayers.map(n => n.trim());
-    if (names.some(n => !n)) {
-      wx.showToast({ title: '请填写4位玩家名称', icon: 'none' });
-      return;
-    }
-    // 名字不能重复
-    if (new Set(names).size !== 4) {
-      wx.showToast({ title: '玩家名称不能重复', icon: 'none' });
-      return;
-    }
-    const userInfo = app.getUserInfo();
-    const players = names.map((name, i) => ({
-      openid: i === 0 ? (userInfo?.openid || 'host') : `simple_${i}`,
-      nickname: name,
-      avatarUrl: i === 0 ? (userInfo?.avatarUrl || '') : '',
-      isHost: i === 0,
-      position: i,
-      score: 0,
-    }));
-    // 将玩家信息传给 simple-scoring 页面（通过本地存储）
-    wx.setStorageSync('simpleGameData', {
-      gameName: gameName.trim(),
-      players,
-      rounds: [],
-      createdAt: Date.now(),
-    });
-    wx.redirectTo({ url: '/pages/simple-scoring/simple-scoring' });
-  },
-
   async createGame() {
     const { gameName } = this.data;
     if (!gameName.trim()) {
@@ -102,7 +56,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'createGame',
-        data: { gameName: gameName.trim() }
+        data: { gameName: gameName.trim(), gameMode: this.data.gameMode }
       });
 
       if (res.result.success) {
@@ -214,7 +168,7 @@ Page({
   },
 
   async startGame() {
-    const { filledPlayers, gameId } = this.data;
+    const { filledPlayers, gameId, gameMode } = this.data;
     if (filledPlayers.length < 4) return;
 
     wx.showLoading({ title: '开始中...' });
@@ -229,9 +183,10 @@ Page({
 
       if (res.result.success) {
         this.stopPolling();
-        wx.redirectTo({
-          url: `/pages/scoring/scoring?gameId=${gameId}`
-        });
+        const targetPage = gameMode === 'simple'
+          ? `/pages/simple-scoring/simple-scoring?gameId=${gameId}`
+          : `/pages/scoring/scoring?gameId=${gameId}`;
+        wx.redirectTo({ url: targetPage });
       } else {
         wx.showToast({ title: res.result.message || '开始失败', icon: 'none' });
       }

@@ -173,16 +173,31 @@
 
 .ss-scorer-item.ss-scorer-selected {
   border-color: #2ed573;
-  background: rgba(46,213,115,0.12);
+  background: rgba(46,213,115,0.14);
+  box-shadow: 0 0 0 2rpx rgba(46,213,115,0.25);
+  transform: scale(1.02);
 }
 
-.ss-scorer-check {
+/* 选中角标（右上角绿圆圈✓） */
+.ss-scorer-badge {
   position: absolute;
-  top: 12rpx;
-  right: 16rpx;
-  font-size: 28rpx;
-  color: #2ed573;
-  font-weight: 700;
+  top: -14rpx;
+  right: -14rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #2ed573;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.ss-scorer-badge-text {
+  font-size: 22rpx;
+  color: #0a0a1a;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .ss-scorer-name {

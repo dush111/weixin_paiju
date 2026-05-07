@@ -18,7 +18,7 @@
         >
           <text class="mode-icon">🎯</text>
           <text class="mode-name">标准模式</text>
-          <text class="mode-desc">邀请好友加入，有队伍、有积分排行</text>
+          <text class="mode-desc">邀请好友加入，按名次记分排行</text>
         </view>
         <view
           class="mode-card {{gameMode === 'simple' ? 'mode-active mode-simple-active' : ''}}"
@@ -27,7 +27,7 @@
         >
           <text class="mode-icon">📝</text>
           <text class="mode-name">简易模式</text>
-          <text class="mode-desc">本地记分，选得分者，简单表格</text>
+          <text class="mode-desc">选得分者记分，简洁表格，同样支持邀请加入</text>
         </view>
       </view>
     </view>
@@ -44,39 +44,14 @@
       />
     </view>
 
-    <!-- 简易模式：直接输入4人名称 -->
-    <view wx:if="{{gameMode === 'simple'}}" class="input-group">
-      <text class="input-label">玩家名称（4人）</text>
-      <view class="simple-players-grid">
-        <view class="simple-player-row" wx:for="{{simplePlayers}}" wx:key="index">
-          <text class="simple-player-num">{{index + 1}}</text>
-          <input
-            class="game-input simple-name-input"
-            value="{{item}}"
-            placeholder="玩家{{index + 1}}名称"
-            maxlength="8"
-            data-index="{{index}}"
-            bindinput="onSimplePlayerInput"
-          />
-        </view>
-      </view>
-    </view>
-
-    <!-- 按钮 -->
+    <!-- 按钮：无论哪种模式都走创建牌局流程 -->
     <button
-      wx:if="{{gameMode === 'simple'}}"
-      class="btn-primary create-btn btn-simple"
-      bindtap="startSimpleGame"
-    >开始简易记分</button>
-
-    <button
-      wx:else
-      class="btn-primary create-btn"
+      class="btn-primary create-btn {{gameMode === 'simple' ? 'btn-simple' : ''}}"
       bindtap="createGame"
-    >创建牌局</button>
+    >{{gameMode === 'simple' ? '创建简易牌局' : '创建牌局'}}</button>
   </view>
 
-  <!-- 等待玩家加入（标准模式）-->
+  <!-- 等待玩家加入 -->
   <view wx:if="{{step === 2}}" class="step-panel waiting-panel">
     <view class="step-header">
       <text class="step-title">等待玩家加入</text>

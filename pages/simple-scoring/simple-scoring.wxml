@@ -27,7 +27,7 @@
       </view>
       <!-- 数据行 -->
       <view
-        class="ss-table-row {{index === 0 ? 'ss-row-first' : ''}}"
+        class="ss-table-row"
         wx:for="{{players}}"
         wx:key="openid"
         wx:for-index="pi"
@@ -52,7 +52,7 @@
     <text class="ss-card-title">第 {{currentRound}} 局记分</text>
 
     <!-- 选得分者 -->
-    <text class="ss-section-label">选择2位得分者</text>
+    <text class="ss-section-label">选择2位得分者（点击已选可取消）</text>
     <view class="ss-scorer-grid">
       <view
         class="ss-scorer-item {{selectedScorers.indexOf(index) !== -1 ? 'ss-scorer-selected' : ''}}"
@@ -61,7 +61,10 @@
         bindtap="toggleScorer"
         data-pi="{{index}}"
       >
-        <text class="ss-scorer-check" wx:if="{{selectedScorers.indexOf(index) !== -1}}">✓</text>
+        <!-- 选中角标 -->
+        <view class="ss-scorer-badge" wx:if="{{selectedScorers.indexOf(index) !== -1}}">
+          <text class="ss-scorer-badge-text">✓</text>
+        </view>
         <text class="ss-scorer-name">{{item.nickname}}</text>
         <text class="ss-scorer-total">{{item.score || 0}}分</text>
       </view>
@@ -94,8 +97,8 @@
     >确认记分</button>
   </view>
 
-  <!-- 结束按钮 -->
-  <view class="ss-end-row">
+  <!-- 结束按钮（仅房主可见） -->
+  <view class="ss-end-row" wx:if="{{isHost}}">
     <button class="ss-btn-end" bindtap="confirmEndGame">结束牌局</button>
   </view>
 
@@ -105,7 +108,7 @@
 <view class="ss-modal-mask" wx:if="{{showEndModal}}" bindtap="cancelEnd">
   <view class="ss-modal-box" catchtap="">
     <text class="ss-modal-title">确定结束牌局？</text>
-    <text class="ss-modal-sub">共完成 {{rounds.length}} 局，结束后数据将清除</text>
+    <text class="ss-modal-sub">共完成 {{rounds.length}} 局，结束后可在历史记录中查看</text>
     <view class="ss-modal-btns">
       <view class="ss-modal-btn ss-modal-cancel" bindtap="cancelEnd">继续记分</view>
       <view class="ss-modal-btn ss-modal-confirm" bindtap="doEndGame">结束</view>

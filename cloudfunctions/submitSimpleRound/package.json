@@ -1,0 +1,9 @@
+{
+  "name": "submitSimpleRound",
+  "version": "1.0.0",
+  "description": "简易模式提交单局记分",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
